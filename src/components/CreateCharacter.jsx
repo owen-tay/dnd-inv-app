@@ -14,8 +14,12 @@ function MyForm() {
     setFormState({
       ...formState,
       [name]: value,
-    });
-  };
+      
+    }
+    )
+    location.reload();
+    ;
+};
 
   const { user } = UserAuth();
 
