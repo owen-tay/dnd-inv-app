@@ -7,6 +7,8 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 import { auth } from '../firebase';
+import { getDatabase, ref, set, onValue } from "firebase/database";
+
 
 const AuthContext = createContext();
 
@@ -21,12 +23,14 @@ export const AuthContextProvider = ({ children }) => {
 
   const logOut = () => {
       signOut(auth)
+      // document.cookie = "uid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
   }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      console.log('User', currentUser)
+      //console.log('User', currentUser)
     });
     return () => {
       unsubscribe();
