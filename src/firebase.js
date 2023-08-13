@@ -29,20 +29,20 @@ export const firebaseConfig = {
 
 // Initialize Firebase and db
 const app = initializeApp(firebaseConfig);
-const db = getDatabase();
+export const db = getDatabase();
 
 //get userid
 
 
 export const auth = getAuth(app);
 
-export function writeUserData(userId, name, email, imageUrl) {
+export function writeUserData(userId, name) {
   const reference = ref(db, "users/" + userId);
 
   set(reference, {
     name: name,
-    type: email,
-    race : imageUrl
+
+
   });
 
 

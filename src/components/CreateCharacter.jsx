@@ -6,8 +6,7 @@ import { UserAuth } from "../context/AuthContext";
 function MyForm() {
   const [formState, setFormState] = useState({
     name: "",
-    type: "",
-    race: "",
+
   });
 
   const handleChange = (e) => {
@@ -25,15 +24,17 @@ function MyForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    writeUserData(user?.uid, formState.name, formState.type, formState.race);
+    writeUserData(user?.uid, formState.name, formState.race, formState.level);
     console.log(formState);
  };
  
 
   return (
+    <div className="flex justify-center items-center bg-green-700 w-screen h-80">
+    <div className= " bg-green-400 ">
     <form onSubmit={handleSubmit}>
       <label htmlFor="name">
-        Name:
+        What is your Characters Name?
         <input
           type="text"
           id="name"
@@ -42,28 +43,11 @@ function MyForm() {
           onChange={handleChange}
         />
       </label>
-      <label htmlFor="type">
-        Type:
-        <input
-          type="text"
-          id="type"
-          name="type"
-          value={formState.type}
-          onChange={handleChange}
-        />
-      </label>
-      <label htmlFor="race">
-        Race:
-        <input
-          type="text"
-          id="race"
-          name="race"
-          value={formState.race}
-          onChange={handleChange}
-        />
-      </label>
+    
       <button type="submit">Submit</button>
     </form>
+    </div>
+    </div>
   );
 }
 

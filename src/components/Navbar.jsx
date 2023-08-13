@@ -16,7 +16,7 @@ function Navbar() {
 
   return (
     <div className="flex justify-between items-center bg-gray-300 h-10 w-full">
-      <div>Navbar</div>
+      <div>DND Character Tracker</div>
 
       <div>
         {user?.displayName ? (

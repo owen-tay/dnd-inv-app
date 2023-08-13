@@ -1,62 +1,48 @@
-import React from 'react';
-import { UserAuth } from '../context/AuthContext';
-import CreateCharacter from '../components/CreateCharacter';
-import ViewCharacter from '../components/ViewCharacter';
-import { getDatabase, ref, set, onValue } from "firebase/database";
-
-
-
-
+import React, { useEffect, useState } from "react";
+import { UserAuth } from "../context/AuthContext";
+import CreateCharacter from "../components/CreateCharacter";
+import ViewCharacter from "../components/ViewCharacter";
+import { getDatabase, ref, onValue } from "firebase/database";
 
 export const Account = () => {
   const { logOut, user } = UserAuth();
+  const [characterExists, setCharacterExists] = useState(false);
 
+  useEffect(() => {
+    if (user && user.uid) {
+      // Reference to the user's data in the Realtime Database
+      const db = getDatabase();
+      const characterRef = ref(db, "users/" + user.uid);
 
-  function setCookie(name, value, days) {
-    let expires = '';
-    if (days) {
-      const date = new Date();
-      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-      expires = `; expires=${date.toUTCString()}`;
+      // Listen to changes in the specified reference
+      const unsubscribe = onValue(characterRef, (snapshot) => {
+        console.log("Snapshot value:", snapshot.val());
+        if (snapshot.exists()) {
+          console.log("Data exists for user:", user.uid);
+          setCharacterExists(true);
+        }
+      });
+
+      // Cleanup function to unsubscribe from the listener when the component is unmounted
+      return () => unsubscribe();
     }
-    document.cookie = `${name}=${value || ''}${expires}; path=/`;
-  }
-
-  setCookie('userUID', user.uid, 7);
-
-
-
-
-  
-  ;
-
-
-
+  }, [user]);
 
   const handleSignOut = async () => {
     try {
       await logOut();
     } catch (error) {
       console.log(error);
-      
     }
   };
 
-
-
   return (
-    <div className='w-[300px] m-auto'>
-      <h1 className='text-center text-2xl font-bold pt-12'>Account</h1>
-      <div>
-        <p>Welcome, {user?.displayName + " " + user?.uid}</p>
-      </div>
-      <button onClick={handleSignOut} className='border py-2 px-5 mt-10'>
-        Logout
-      </button>
-      <CreateCharacter></CreateCharacter>
-      <ViewCharacter></ViewCharacter>
+    <div className="">
+     
+      {!characterExists ? <CreateCharacter /> : <ViewCharacter />}
     </div>
   );
+  
 };
 
 export default Account;
