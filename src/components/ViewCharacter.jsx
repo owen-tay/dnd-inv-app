@@ -3,7 +3,8 @@ import { getDatabase, ref, update, onValue, off } from "firebase/database";
 import { dbRef, uidCookie } from "../firebase";
 
 export default function ViewCharacter() {
-  const [characterName, setCharacterName] = useState("");
+
+  const [characterName, setCharacterName] = useState(characterName);
   const [goldValue, setGoldValue] = useState(0);  // Initializing goldValue to 0!!!
   useEffect(() => {
     const handleValueChange = (snapshot) => {
