@@ -1,7 +1,9 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { UserAuth } from "./context/AuthContext";
-import { getAuth } from "firebase/auth";
+import { getAuth  } from "firebase/auth";
+
+import { getStorage,  ref as storageRef, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 import { getDatabase, ref, set, onValue } from "firebase/database";
 
@@ -10,6 +12,34 @@ import { getDatabase, ref, set, onValue } from "firebase/database";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
+
+
+//image upload stuff
+export async function uploadImage(file, userId) {
+  const storage = getStorage();
+  const imagePath = `users/${userId}/profileImage/${file.name}`;
+  const imageRef = storageRef(storage, imagePath);
+
+  const uploadTask = uploadBytesResumable(imageRef, file);
+
+  return new Promise((resolve, reject) => {
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        // Progress function ...
+      }, 
+      (error) => {
+        // Error handling...
+        reject(error);
+      }, 
+      async () => {
+        const downloadURL = await getDownloadURL(imageRef);
+        resolve(downloadURL);
+      }
+    );
+  });
+}
+
+
 export const firebaseConfig = {
   apiKey: "AIzaSyDIG4yhBu_ijfkzI0QoNeTvkPwdCP0iMQw",
 
@@ -20,7 +50,7 @@ export const firebaseConfig = {
 
   projectId: "auth-yt-53bed",
 
-  storageBucket: "auth-yt-53bed.appspot.com",
+  storageBucket: "gs://auth-yt-53bed.appspot.com/",
 
   messagingSenderId: "929581945000",
 
@@ -30,6 +60,11 @@ export const firebaseConfig = {
 // Initialize Firebase and db
 const app = initializeApp(firebaseConfig);
 export const db = getDatabase();
+
+// Get a reference to the storage service, which is used to create references in your storage bucket
+const storage = getStorage();
+
+
 
 //get userid
 

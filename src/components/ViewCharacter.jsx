@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaCoins, FaUserAlt, FaHeart } from "react-icons/fa";
 import { UserAuth } from "../context/AuthContext";
+import { uploadImage, writeUserData } from "../firebase";
 
 import {
   getDatabase,
@@ -27,6 +28,7 @@ export default function ViewCharacter() {
   const [itemType, setItemType] = useState("");
   const [itemName, setItemName] = useState("");
   const [itemDescription, setItemDescription] = useState("");
+  const [imageURL, setImageURL] = useState("");
 
   //this resets all the states
   const resetState = () => {
@@ -60,6 +62,11 @@ export default function ViewCharacter() {
         setLevelValue(data.level || 0);
         setCurrentHp(data.currentHp || 0);
         setMaxHp(data.maxHp || 0);
+
+        // Set imageURL if it exists in the data
+        if (data.imgurl) {
+          setImageURL(data.imgurl);
+        }
       }
     };
 
@@ -86,6 +93,40 @@ export default function ViewCharacter() {
       off(itemsRef, "value", handleItemsChange);
     };
   }, [user]);
+
+  //image handler
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      // 1. File Type Check
+      const validFileTypes = ["image/jpeg", "image/png", "image/gif"];
+      if (!validFileTypes.includes(file.type)) {
+        alert("Please upload a valid image type (JPEG, PNG, or GIF).");
+        return;
+      }
+
+      // 2. File Size Check
+      const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSizeInBytes) {
+        alert("The image size should be less than 5MB.");
+        return;
+      }
+
+      try {
+        const imageURL = await uploadImage(file, user.uid);
+
+        const db = getDatabase();
+        const reference = ref(db, "users/" + user.uid);
+        update(reference, {
+          imgurl: imageURL,
+        });
+      } catch (error) {
+        console.error("There was an error uploading the image:", error);
+      }
+    }
+  };
 
   const handleItemSubmit = () => {
     const db = getDatabase();
@@ -162,7 +203,53 @@ export default function ViewCharacter() {
 
   return (
     <div className="mt-2">
-      <h1 className=" text-center text-3xl font-bold text-"> {characterName}</h1>
+      <h1 className=" text-center text-3xl font-bold text-">
+        {" "}
+        {characterName}
+      </h1>
+      <div className="flex justify-center w-screen">
+        <img
+          src={imageURL}
+          alt="profile pic"
+          className="object-cover w-40 h-40 rounded-full border-2 m-4"
+        />
+      </div>
+
+      <div className="flex w-screen justify-center">
+
+        <dialog id="my_modal_2" className="modal">
+          <form method="dialog" className="modal-box">
+            <h3 className="font-bold text-lg justify-center text-center">
+              Add an Image for your character.
+            </h3>
+            <div className="flex flex-cp justify-center">
+              <input
+                type="file"
+                className="file-input file-input-bordered w-full max-w-xs"
+                onChange={handleImageUpload}
+              />
+              <button className="btn btn-accent">Submit</button>
+            </div>
+          </form>
+
+          <form method="dialog" className="modal-backdrop">
+            <button>close</button>
+          </form>
+        </dialog>
+      </div>
+      <div className=" mx-48">
+        <div className="flex justify-center ">
+          <p className=" text-lg">0HP</p>
+          <input
+            type="range"
+            min={0}
+            max={maxHp}
+            value={currentHp}
+            className="range range-accent  cursor-auto"
+          />
+          <p className=" text-lg">{maxHp}HP</p>
+        </div>
+      </div>
       <div className="mt-4 text-center">
         <div className="flex flex-wrap justify-center gap-4">
           <div className="  w-36 h-36">
@@ -263,13 +350,18 @@ export default function ViewCharacter() {
           </div>
         </div>
       </div>
-
-      <div className="mt-4 justify-center flex" id="items">
+      <div className="mt-4 justify-center flex gap-2" id="items">
         <button
-          className="btn btn-accent m-5"
+          className="btn btn-accent "
           onClick={() => window.my_modal_3.showModal()}
         >
           Add Item
+        </button>
+        <button
+          className="btn btn-accent"
+          onClick={() => window.my_modal_2.showModal()}
+        >
+          Add Image
         </button>
         <dialog id="my_modal_3" className="modal">
           <form
