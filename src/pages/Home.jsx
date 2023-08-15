@@ -14,7 +14,7 @@ function Home() {
             <h1 className="text-7xl font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
               Track Your Character
             </h1>
-            <p className="py-6 text-2xl">
+            <p className="py-6 text-2xl text-accent-content">
               Track your characters items, spells and HP with this easy to use
               web app.
             </p>

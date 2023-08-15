@@ -1,8 +1,9 @@
 .bghero {
-  background: url(./images/tres.jpg);
+  background: url(./images/background.jpg);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
 
   ;
 }
+

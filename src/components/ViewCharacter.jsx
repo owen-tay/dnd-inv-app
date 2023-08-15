@@ -209,7 +209,7 @@ export default function ViewCharacter() {
 
   return (
     <div className="mt-2">
-      <h1 className=" text-center text-3xl font-bold text-">
+      <h1 className=" text-center text-3xl font-bold text-accent-content">
         {" "}
         {characterName}
       </h1>
@@ -245,7 +245,7 @@ export default function ViewCharacter() {
       </div>
       <div className=" mx-8 sm:mx-48">
         <div className="flex justify-center ">
-          <p className=" text-lg">0HP</p>
+          <p className=" text-lg text-accent-content">0HP</p>
           <input
             type="range"
             min={0}
@@ -253,13 +253,13 @@ export default function ViewCharacter() {
             value={currentHp}
             className="range range-accent  cursor-auto"
           />
-          <p className=" text-lg">{maxHp}HP</p>
+          <p className=" text-lg text-accent-content">{maxHp}HP</p>
         </div>
       </div>
       <div className="mt-4 text-center">
         <div className="flex flex-wrap justify-center gap-4">
           <div className="  w-36 h-36">
-            <p className=" text-lg">Gold</p>
+            <p className=" text-lg text-accent-content">Gold</p>
             <button
               className=" text-2xl m-2"
               onClick={() => handleGoldChange(-1)}
@@ -283,7 +283,7 @@ export default function ViewCharacter() {
             </div>
           </div>
           <div className="  w-36 h-36">
-            <p className=" text-lg">Level</p>
+            <p className=" text-lg text-accent-content">Level</p>
             <button
               className=" text-2xl m-2"
               onClick={() => handleLevelChange(-1)}
@@ -313,7 +313,7 @@ export default function ViewCharacter() {
 
           {/* Current HP input field */}
           <div className=" w-48 h-36">
-            <p className="  text-lg">HP/MaxHP</p>
+            <p className="  text-lg text-accent-content">HP/MaxHP</p>
             <button
               className=" text-2xl m-2"
               onClick={() => handleHpChange("current", -1)}
