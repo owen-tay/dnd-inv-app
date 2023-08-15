@@ -12,6 +12,10 @@ import { getDatabase, ref, set, onValue } from "firebase/database";
 
 const AuthContext = createContext();
 
+
+
+
+
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState({});
 
@@ -21,12 +25,16 @@ export const AuthContextProvider = ({ children }) => {
     signInWithRedirect(auth, provider)
   };
 
+  const [loading, setLoading] = useState(true);
+
   const logOut = () => {
-      signOut(auth)
-      // document.cookie = "uid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-
+    setLoading(true);
+    signOut(auth)
+    .then(() => {
+       setLoading(false);
+    });
   }
-
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);

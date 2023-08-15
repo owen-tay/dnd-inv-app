@@ -2,8 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 import { Route , Routes } from 'react-router';
 //components
-import Navbar from './components/Navbar.jsx';
-//pages
+import Navbar from './components/Navbar';//pages
 import Home from './pages/Home';
 import Signin from './pages/Signin';
 import Account from './pages/Account';

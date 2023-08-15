@@ -12,7 +12,6 @@ function MyForm() {
     setFormState({
       ...formState,
       [name]: value,
-      
     });
   };
 
@@ -28,21 +27,22 @@ function MyForm() {
   };
 
   return (
-    <div className="flex justify-center items-center bg-green-700 w-screen h-80">
-      <div className=" bg-green-400 ">
+    <div className="flex justify-center items-center w-screen h-80">
+      <div className="">
         <form onSubmit={handleSubmit}>
           <label htmlFor="name">
             What is your Characters Name?
             <input
               type="text"
-              id="name"
+              placeholder="Type here"
               name="name"
               value={formState.name}
+              className="input input-bordered w-full max-w-xs"
               onChange={handleChange}
             />
           </label>
 
-          <button type="submit">Submit</button>
+          <button type="submit" className="btn btn-accent">Submit</button>
         </form>
       </div>
     </div>

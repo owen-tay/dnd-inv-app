@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaCoins, FaUserAlt, FaHeart } from "react-icons/fa";
+import { UserAuth } from "../context/AuthContext";
 
 import {
   getDatabase,
@@ -14,6 +15,8 @@ import { dbRef, uidCookie } from "../firebase";
 import ItemComponent from "./ItemComponent";
 
 export default function ViewCharacter() {
+  const { user } = UserAuth();
+  console.log(user.uid);
   const [characterName, setCharacterName] = useState("");
   const [goldValue, setGoldValue] = useState(0);
   const [levelValue, setLevelValue] = useState(0);
@@ -25,7 +28,27 @@ export default function ViewCharacter() {
   const [itemName, setItemName] = useState("");
   const [itemDescription, setItemDescription] = useState("");
 
+  //this resets all the states
+  const resetState = () => {
+    setCharacterName("");
+    setGoldValue(0);
+    setLevelValue(0);
+    setCurrentHp(0);
+    setMaxHp(0);
+    setItems([]);
+    setItemType("");
+    setItemName("");
+    setItemDescription("");
+  };
+
   useEffect(() => {
+    // Reset state every time the user changes.
+    resetState();
+
+    if (!user) {
+      return; // If no user, don't proceed.
+    }
+
     const handleValueChange = (snapshot) => {
       const data = snapshot.val();
 
@@ -40,9 +63,13 @@ export default function ViewCharacter() {
       }
     };
 
-    onValue(dbRef, handleValueChange);
+    // Construct the dbRef inside the useEffect using the user's UID.
+    const userDbRef = ref(getDatabase(), "users/" + user.uid);
 
-    const itemsRef = ref(getDatabase(), "users/" + uidCookie + "/items");
+    onValue(userDbRef, handleValueChange);
+
+    const itemsRef = ref(getDatabase(), "users/" + user.uid + "/items");
+
     const handleItemsChange = (snapshot) => {
       const data = snapshot.val();
       const formattedItems = [];
@@ -55,14 +82,14 @@ export default function ViewCharacter() {
     onValue(itemsRef, handleItemsChange);
 
     return () => {
-      off(dbRef, "value", handleValueChange);
+      off(userDbRef, "value", handleValueChange);
       off(itemsRef, "value", handleItemsChange);
     };
-  }, []);
+  }, [user]);
 
   const handleItemSubmit = () => {
     const db = getDatabase();
-    const itemsRef = ref(db, "users/" + uidCookie + "/items");
+    const itemsRef = ref(db, "users/" + user.uid + "/items");
     const newItemRef = push(itemsRef);
 
     set(newItemRef, {
@@ -75,7 +102,7 @@ export default function ViewCharacter() {
   const deleteItem = (itemId) => {
     const itemRef = ref(
       getDatabase(),
-      "users/" + uidCookie + "/items/" + itemId
+      "users/" + user.uid + "/items/" + itemId
     );
     set(itemRef, null);
     setItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
@@ -124,7 +151,7 @@ export default function ViewCharacter() {
 
   function writeUserData2(gold, level, currentHp, maxHp) {
     const db = getDatabase();
-    const reference = ref(db, "users/" + uidCookie);
+    const reference = ref(db, "users/" + user.uid);
     update(reference, {
       gold: gold,
       level: level,
@@ -135,8 +162,8 @@ export default function ViewCharacter() {
 
   return (
     <div className="mt-2">
-      <h1 className=" text-3xl font-bold text-"> {characterName}</h1>
-      <div className="mt-4">
+      <h1 className=" text-center text-3xl font-bold text-"> {characterName}</h1>
+      <div className="mt-4 text-center">
         <div className="flex flex-wrap justify-center gap-4">
           <div className="  w-36 h-36">
             <p className=" text-lg">Gold</p>
@@ -237,7 +264,7 @@ export default function ViewCharacter() {
         </div>
       </div>
 
-      <div className="mt-4" id="items">
+      <div className="mt-4 justify-center flex" id="items">
         <button
           className="btn btn-accent m-5"
           onClick={() => window.my_modal_3.showModal()}
@@ -254,7 +281,7 @@ export default function ViewCharacter() {
             }}
           >
             <button
-              type="button" 
+              type="button"
               className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
               onClick={() => {
                 window.my_modal_3.close(); //this shouldd Close the modal on click
@@ -271,7 +298,7 @@ export default function ViewCharacter() {
               onChange={(e) => setItemType(e.target.value)}
             >
               <option disabled selected>
-                Who shot first?
+                Pick an item type:
               </option>
               <option>Weapon</option>
               <option>Magical Item</option>
@@ -297,7 +324,7 @@ export default function ViewCharacter() {
               onChange={(e) => setItemDescription(e.target.value)}
             ></textarea>
             <p></p>
-            <button  type="submit" className="btn mt-2 btn-accent">
+            <button type="submit" className="btn mt-2 btn-accent">
               Submit
             </button>
           </form>

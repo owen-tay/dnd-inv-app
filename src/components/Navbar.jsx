@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
-import { FaDiceD20 } from "react-icons/fa";
+import { FaDiceD20, FaUserAlt } from "react-icons/fa";
 
 function Navbar() {
   const { user, logOut } = UserAuth();
@@ -15,15 +15,16 @@ function Navbar() {
   };
 
   return (
-    <div className="flex justify-between items-center bg-base-200 h-12 w-full ">
-       <Link to="/">
-      <div className="flex  text-xl ml-4 hover:scale-105 ease-in-out duration-75 ">
-        <FaDiceD20 size="30" />
-        DND Character Tracker
-      </div>
+    <div className="flex font-bold justify-between items-center bg-transparent h-12 w-full ">
+      <Link to="/">
+        <div className="flex text-xl  sm:text-3xl ml-4 hover:scale-105 ease-in-out duration-75 ">
+          <FaDiceD20 size="30" />
+          DND  Tracker
+        </div>
       </Link>
 
-      <div className="mr-3 hover:scale-105 ease-in-out duration-75">
+      <div className="mr-3 flex gap-1  text-xl  sm:text-3xl font-bold hover:scale-105 ease-in-out duration-75">
+        <FaUserAlt size="30"  />
         {user?.displayName ? (
           <button onClick={handleSignOut}>Logout</button>
         ) : (
