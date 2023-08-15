@@ -9,9 +9,14 @@ import Account from './pages/Account';
 import { AuthContextProvider } from './context/AuthContext';
 import Protected from './components/Protected';
 
+
+
+
 function App() {
+  
   return (
     <div className="App">
+      
       <AuthContextProvider>
       <Navbar/>
       <Routes>

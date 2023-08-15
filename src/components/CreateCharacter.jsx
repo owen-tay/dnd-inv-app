@@ -28,7 +28,7 @@ function MyForm() {
 
   return (
     <div className="flex justify-center items-center w-screen h-80">
-      <div className="">
+      <div className="flex justify-center">
         <form onSubmit={handleSubmit}>
           <label htmlFor="name">
             What is your Characters Name?
