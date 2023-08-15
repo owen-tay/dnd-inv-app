@@ -3,6 +3,7 @@ import { FaCoins, FaUserAlt, FaHeart } from "react-icons/fa";
 import { UserAuth } from "../context/AuthContext";
 import { uploadImage, writeUserData } from "../firebase";
 
+
 import {
   getDatabase,
   ref,
@@ -28,7 +29,7 @@ export default function ViewCharacter() {
   const [itemType, setItemType] = useState("");
   const [itemName, setItemName] = useState("");
   const [itemDescription, setItemDescription] = useState("");
-  const [imageURL, setImageURL] = useState("");
+  const [imageURL, setImageURL] = useState("/profileStarter.png");
 
   //this resets all the states
   const resetState = () => {
