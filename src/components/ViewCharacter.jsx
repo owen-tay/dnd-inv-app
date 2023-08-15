@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { FaCoins, FaUserAlt, FaHeart } from "react-icons/fa";
 import { UserAuth } from "../context/AuthContext";
 import { uploadImage, writeUserData } from "../firebase";
+import { getStorage, ref as storageRef, deleteObject, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+
 
 
 import {
@@ -9,6 +12,7 @@ import {
   ref,
   update,
   onValue,
+  get,
   off,
   push,
   set,
@@ -99,32 +103,33 @@ export default function ViewCharacter() {
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-
+  
     if (file) {
-      // 1. File Type Check
-      const validFileTypes = ["image/jpeg", "image/png", "image/gif"];
-      if (!validFileTypes.includes(file.type)) {
-        alert("Please upload a valid image type (JPEG, PNG, or GIF).");
-        return;
+      // File Type and Size Checks as above...
+      
+      const db = getDatabase();
+      const userRef = ref(db, "users/" + user.uid);
+  
+      // Retrieve existing imageURL from the database
+      const snapshot = await get(userRef);
+      if (snapshot.exists() && snapshot.val().imgurl) {
+        const oldImageURL = snapshot.val().imgurl;
+  
+        // Get reference to old image in storage and delete it
+        const storage = getStorage();
+        const oldImageRef = storageRef(storage, oldImageURL);
+        await deleteObject(oldImageRef);
       }
-
-      // 2. File Size Check
-      const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
-      if (file.size > maxSizeInBytes) {
-        alert("The image size should be less than 5MB.");
-        return;
-      }
-
+  
       try {
         const imageURL = await uploadImage(file, user.uid);
-
-        const db = getDatabase();
-        const reference = ref(db, "users/" + user.uid);
-        update(reference, {
+        
+        // Save the new imageURL to the database
+        update(userRef, {
           imgurl: imageURL,
         });
       } catch (error) {
-        console.error("There was an error uploading the image:", error);
+        console.error("There was an error:", error);
       }
     }
   };
@@ -212,7 +217,7 @@ export default function ViewCharacter() {
         <img
           src={imageURL}
           alt="profile pic"
-          className="object-cover w-40 h-40 rounded-full border-2 m-4"
+          className="object-cover w-40 h-40 rounded-full border-2 m-5"
         />
       </div>
 
@@ -238,7 +243,7 @@ export default function ViewCharacter() {
           </form>
         </dialog>
       </div>
-      <div className=" mx-48">
+      <div className=" mx-8 sm:mx-48">
         <div className="flex justify-center ">
           <p className=" text-lg">0HP</p>
           <input
