@@ -8,7 +8,7 @@ function ItemComponent({ item, onDelete }) {
       <p className='font-bold text-xl'>{item.name}</p>
       <p className='m-1'>{item.description}</p>
     </div>
-    <button className='btn btn-accent w-full' onClick={() => onDelete(item.id)}>Delete</button>
+    <button className='btn btn-secondary w-full' onClick={() => onDelete(item.id)}>Delete</button>
 
     </div>
   );

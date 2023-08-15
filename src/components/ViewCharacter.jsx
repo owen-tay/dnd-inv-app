@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import { FaCoins, FaUserAlt, FaHeart } from "react-icons/fa";
 import { UserAuth } from "../context/AuthContext";
 import { uploadImage, writeUserData } from "../firebase";
-import { getStorage, ref as storageRef, deleteObject, uploadBytes, getDownloadURL } from 'firebase/storage';
-
-
-
+import {
+  getStorage,
+  ref as storageRef,
+  deleteObject,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
 
 import {
   getDatabase,
@@ -30,10 +33,12 @@ export default function ViewCharacter() {
   const [maxHp, setMaxHp] = useState(0);
   const [items, setItems] = useState([]);
 
-  const [itemType, setItemType] = useState("");
+  const [itemType, setItemType] = useState(null);
   const [itemName, setItemName] = useState("");
   const [itemDescription, setItemDescription] = useState("");
   const [imageURL, setImageURL] = useState("/profileStarter.png");
+
+  const [imageScale, setImageScale] = useState(false);
 
   //this resets all the states
   const resetState = () => {
@@ -103,27 +108,27 @@ export default function ViewCharacter() {
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-  
+
     if (file) {
       // File Type and Size Checks as above...
-      
+
       const db = getDatabase();
       const userRef = ref(db, "users/" + user.uid);
-  
+
       // Retrieve existing imageURL from the database
       const snapshot = await get(userRef);
       if (snapshot.exists() && snapshot.val().imgurl) {
         const oldImageURL = snapshot.val().imgurl;
-  
+
         // Get reference to old image in storage and delete it
         const storage = getStorage();
         const oldImageRef = storageRef(storage, oldImageURL);
         await deleteObject(oldImageRef);
       }
-  
+
       try {
         const imageURL = await uploadImage(file, user.uid);
-        
+
         // Save the new imageURL to the database
         update(userRef, {
           imgurl: imageURL,
@@ -144,6 +149,7 @@ export default function ViewCharacter() {
       name: itemName,
       description: itemDescription,
     });
+    window.my_modal_3.close();
   };
 
   const deleteItem = (itemId) => {
@@ -174,6 +180,18 @@ export default function ViewCharacter() {
   };
 
   const handleHpChange = (type, delta) => {
+    const newValue = type === "current" ? currentHp + delta : currentHp;
+    setCurrentHp(newValue);
+    writeUserData2(goldValue, levelValue, newValue, maxHp);
+
+    // Apply the scaling effect
+    setImageScale(true);
+
+    // Delay removing the scaling effect after 0.5 seconds
+    setTimeout(() => {
+      setImageScale(false);
+    }, 200);
+
     if (type === "current") {
       const newValue = currentHp + delta;
       setCurrentHp(newValue);
@@ -207,6 +225,11 @@ export default function ViewCharacter() {
     });
   }
 
+  const toggleVisibility = () => {
+    const hideshowDiv = document.getElementById("showHide");
+    hideshowDiv.classList.toggle("hidden");
+  };
+
   return (
     <div className="mt-2">
       <h1 className=" text-center text-3xl font-bold text-accent-content">
@@ -217,12 +240,13 @@ export default function ViewCharacter() {
         <img
           src={imageURL}
           alt="profile pic"
-          className="object-cover w-40 h-40 rounded-full border-2 m-5"
+          className={`object-cover w-48 h-48 rounded-full border-2 m-5 ease-in-out duration-75 ${
+            imageScale ? " scale-110 border-primary " : ""
+          }`}
         />
       </div>
 
       <div className="flex w-screen justify-center">
-
         <dialog id="my_modal_2" className="modal">
           <form method="dialog" className="modal-box">
             <h3 className="font-bold text-lg justify-center text-center">
@@ -234,7 +258,7 @@ export default function ViewCharacter() {
                 className="file-input file-input-bordered w-full max-w-xs"
                 onChange={handleImageUpload}
               />
-              <button className="btn btn-accent">Submit</button>
+              <button className="btn btn-secondary">Submit</button>
             </div>
           </form>
 
@@ -251,182 +275,217 @@ export default function ViewCharacter() {
             min={0}
             max={maxHp}
             value={currentHp}
-            className="range range-accent  cursor-auto"
+            className="range range-secondary  cursor-auto"
           />
-          <p className=" text-lg text-accent-content">{maxHp}HP</p>
+          <p className=" text-lg text-secondary-content">{maxHp}HP</p>
         </div>
       </div>
-      <div className="mt-4 text-center">
-        <div className="flex flex-wrap justify-center gap-4">
-          <div className="  w-36 h-36">
-            <p className=" text-lg text-accent-content">Gold</p>
-            <button
-              className=" text-2xl m-2"
-              onClick={() => handleGoldChange(-1)}
-            >
-              -
-            </button>
-            <input
-              className="w-8 text-center"
-              type="number"
-              value={goldValue}
-              onChange={handleInputChange}
-            />
-            <button
-              className=" text-2xl m-2"
-              onClick={() => handleGoldChange(1)}
-            >
-              +
-            </button>
-            <div className="flex justify-center items-center  text-accent ">
-              <FaCoins size="50" />
-            </div>
-          </div>
-          <div className="  w-36 h-36">
-            <p className=" text-lg text-accent-content">Level</p>
-            <button
-              className=" text-2xl m-2"
-              onClick={() => handleLevelChange(-1)}
-            >
-              -
-            </button>
-            <input
-              className="w-8 text-center"
-              type="number"
-              value={levelValue}
-              onChange={(e) => {
-                const newValue = parseInt(e.target.value, 10) || 0;
-                setLevelValue(newValue);
-                writeUserData2(goldValue, newValue, currentHp, maxHp);
-              }}
-            />
-            <button
-              className=" text-2xl m-2"
-              onClick={() => handleLevelChange(1)}
-            >
-              +
-            </button>
-            <div className="flex justify-center items-center  text-accent ">
-              <FaUserAlt size="50" />
-            </div>
-          </div>
+      <div className="flex justify-center gap-2 my-2">
+        <button
+          className="btn btn-active btn-primary w-16"
+          onClick={() => handleHpChange("current", -1)}
+        >
+          1 Damage
+        </button>
+        <button
+          className="btn btn-active btn-secondary w-16"
+          onClick={() => handleHpChange("current", 1)}
+        >
+          1 Heal
+        </button>
+      </div>
 
-          {/* Current HP input field */}
-          <div className=" w-48 h-36">
-            <p className="  text-lg text-accent-content">HP/MaxHP</p>
-            <button
-              className=" text-2xl m-2"
-              onClick={() => handleHpChange("current", -1)}
-            >
-              -
-            </button>
+      <div className="flex  justify-center">
+        <div className="form-control">
+          <label className="cursor-pointer label">
             <input
-              className="w-8 text-center"
-              type="number"
-              value={currentHp}
-              onChange={(e) => handleHpInputChange("current", e)}
+              id="hideshowcheck"
+              type="checkbox"
+              className="toggle toggle-secondary"
+              onChange={toggleVisibility} // Toggle visibility on checkbox change
             />
-            <button
-              className=" text-2xl m-2"
-              onClick={() => handleHpChange("current", 1)}
-            >
-              +
-            </button>
-            <button
-              className=" text-2xl m-2"
-              onClick={() => handleHpChange("max", -1)}
-            >
-              -
-            </button>
-            <input
-              className="w-8 text-center"
-              type="number"
-              value={maxHp}
-              onChange={(e) => handleHpInputChange("max", e)}
-            />
-            <button
-              className=" text-2xl m-2"
-              onClick={() => handleHpChange("max", 1)}
-            >
-              +
-            </button>
-            <div className="flex justify-center  text-accent  items-center">
-              <FaHeart size="50" />
+          </label>
+        </div>
+      </div>
+      <div className="flex justify-center">
+        <p>Hide/Show Stats</p>
+      </div>
+      <div id="showHide" className=" ">
+        <div className="mt-4 text-center">
+          <div className="flex flex-wrap justify-center gap-4">
+            <div className="  w-36 h-36">
+              <p className=" text-lg text-accent-content">Gold</p>
+              <button
+                className=" text-2xl m-2"
+                onClick={() => handleGoldChange(-1)}
+              >
+                -
+              </button>
+              <input
+                className="w-8 text-center"
+                type="number"
+                value={goldValue}
+                onChange={handleInputChange}
+              />
+              <button
+                className=" text-2xl m-2"
+                onClick={() => handleGoldChange(1)}
+              >
+                +
+              </button>
+              <div className="flex justify-center items-center  text-secondary">
+                <FaCoins size="50" />
+              </div>
+            </div>
+            <div className="  w-36 h-36">
+              <p className=" text-lg text-accent-content">Level</p>
+              <button
+                className=" text-2xl m-2"
+                onClick={() => handleLevelChange(-1)}
+              >
+                -
+              </button>
+              <input
+                className="w-8 text-center"
+                type="number"
+                value={levelValue}
+                onChange={(e) => {
+                  const newValue = parseInt(e.target.value, 10) || 0;
+                  setLevelValue(newValue);
+                  writeUserData2(goldValue, newValue, currentHp, maxHp);
+                }}
+              />
+              <button
+                className=" text-2xl m-2"
+                onClick={() => handleLevelChange(1)}
+              >
+                +
+              </button>
+              <div className="flex justify-center items-center  text-secondary">
+                <FaUserAlt size="50" />
+              </div>
+            </div>
+
+            {/* Current HP input field */}
+            <div className=" w-48 h-36">
+              <p className="  text-lg text-accent-content">HP/MaxHP</p>
+              <button
+                className=" text-2xl m-2"
+                onClick={() => handleHpChange("current", -1)}
+              >
+                -
+              </button>
+              <input
+                className="w-8 text-center"
+                type="number"
+                value={currentHp}
+                onChange={(e) => handleHpInputChange("current", e)}
+              />
+              <button
+                className=" text-2xl m-2"
+                onClick={() => handleHpChange("current", 1)}
+                >
+                +
+              </button>
+              <span className=" text-2xl">/</span>
+              <button
+                className=" text-2xl m-2"
+                onClick={() => handleHpChange("max", -1)}
+              >
+                -
+              </button>
+              <input
+                className="w-8 text-center"
+                type="number"
+                value={maxHp}
+                onChange={(e) => handleHpInputChange("max", e)}
+              />
+              <button
+                className=" text-2xl m-2"
+                onClick={() => handleHpChange("max", 1)}
+              >
+                +
+              </button>
+              <div className="flex justify-center  text-secondary items-center">
+                <FaHeart size="50" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div className="mt-4 justify-center flex gap-2" id="items">
-        <button
-          className="btn btn-accent "
-          onClick={() => window.my_modal_3.showModal()}
-        >
-          Add Item
-        </button>
-        <button
-          className="btn btn-accent"
-          onClick={() => window.my_modal_2.showModal()}
-        >
-          Add Image
-        </button>
-        <dialog id="my_modal_3" className="modal">
-          <form
-            method="dialog"
-            className="modal-box"
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleItemSubmit();
-            }}
+        <div className="mt-4 justify-center flex gap-2" id="items">
+          <button
+            className="btn btn-secondary "
+            onClick={() => window.my_modal_3.showModal()}
           >
-            <button
-              type="button"
-              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-              onClick={() => {
-                window.my_modal_3.close(); //this shouldd Close the modal on click
+            Add Item
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={() => window.my_modal_2.showModal()}
+          >
+            Add Image
+          </button>
+          <dialog id="my_modal_3" className="modal">
+            <form
+              method="dialog"
+              className="modal-box"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleItemSubmit();
               }}
             >
-              ✕
-            </button>
-            <h3 className="font-bold text-lg"></h3>
-            <p className="py-4">Item Type</p>
-            <select
-              className="select select-bordered w-full max-w-xs"
-              required
-              value={itemType}
-              onChange={(e) => setItemType(e.target.value)}
-            >
-              <option disabled selected>
-                Pick an item type:
-              </option>
-              <option>Weapon</option>
-              <option>Magical Item</option>
-              <option>Supplies</option>
-              <option>Other</option>
-            </select>
-            <p className="py-4">Item Name</p>
-            <input
-              type="text"
-              required
-              placeholder="Type here"
-              className="input input-bordered w-full max-w-xs"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
-            />
-            <p className="py-4">Item Description</p>
-            <textarea
-              className="textarea textarea-bordered  w-full max-w-xs"
-              placeholder="Bio"
-              maxlength="1000"
-              required
-              value={itemDescription}
-              onChange={(e) => setItemDescription(e.target.value)}
-            ></textarea>
-            <p></p>
-            <button type="submit" className="btn mt-2 btn-accent">
-              Submit
-            </button>
-          </form>
-        </dialog>
+              <button
+                type="button"
+                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                onClick={() => {
+                  window.my_modal_3.close(); //this shouldd Close the modal on click
+                }}
+              >
+                ✕
+              </button>
+              <h3 className="font-bold text-lg"></h3>
+              <p className="py-4">Item Type</p>
+              <select
+                className="select select-bordered w-full max-w-xs"
+                required
+                value={itemType}
+                onChange={(e) => setItemType(e.target.value)}
+              >
+                <option value="" disabled>
+                  Pick an item type
+                </option>
+                <option value="Weapon">Weapon</option>
+                <option value="Magical Item">Magical Item</option>
+                <option value="Supplies">Supplies</option>
+                <option value="Other">Other</option>
+              </select>
+              <p className="py-4">Item Name</p>
+              <input
+                type="text"
+                required
+                placeholder="Type here"
+                className="input input-bordered w-full max-w-xs"
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
+              />
+              <p className="py-4">Item Description</p>
+              <textarea
+                className="textarea textarea-bordered  w-full max-w-xs"
+                placeholder="Bio"
+                maxlength="1000"
+                required
+                value={itemDescription}
+                onChange={(e) => setItemDescription(e.target.value)}
+              ></textarea>
+              <p></p>
+              <div className="flex justify-center">
+                <button type="submit" className="btn mt-2 btn-secondary">
+                  Submit
+                </button>
+              </div>
+            </form>
+          </dialog>
+        </div>
       </div>
       <div id="viewItems" className="flex gap-4 flex-wrap justify-center">
         {items.map((item) => (
