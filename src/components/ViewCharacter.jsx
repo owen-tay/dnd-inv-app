@@ -77,7 +77,42 @@ export default function ViewCharacter() {
       chaScore
     );
   };
-  
+  //big table off bonus stats
+  const calculateBonus = (statValue) => {
+    if (statValue <= 1) {
+      return -5;
+    } else if (statValue <= 3) {
+      return -4;
+    } else if (statValue <= 5) {
+      return -3;
+    } else if (statValue <= 7) {
+      return -2;
+    } else if (statValue <= 9) {
+      return -1;
+    } else if (statValue <= 11) {
+      return 0;
+    } else if (statValue <= 13) {
+      return "+1";
+    } else if (statValue <= 15) {
+      return "+2";
+    } else if (statValue <= 17) {
+      return "+3";
+    } else if (statValue <= 19) {
+      return "+4";
+    } else if (statValue <= 21) {
+      return "+5";
+    } else if (statValue <= 23) {
+      return "+6";
+    } else if (statValue <= 25) {
+      return "+7";
+    } else if (statValue <= 27) {
+      return "+8";
+    } else if (statValue <= 29) {
+      return "+9";
+    } else {
+      return "+10";
+    }
+  };
   
 
   const handleDexInputChange = (e) => {
@@ -443,8 +478,8 @@ export default function ViewCharacter() {
         <div className="flex justify-center gap-1">
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">STR</p>
-            <p id="strBonus" className=" text-md">
-              +1
+            <p id="strBonus" className="text-md">
+              {calculateBonus(strScore)}
             </p>
 
             <div className="w-20  flex justify-center">
@@ -459,8 +494,8 @@ export default function ViewCharacter() {
           </div>
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">DEX</p>
-            <p id="dexBonus" className=" text-md">
-              +1
+            <p id="dexBonus" className="text-md">
+              {calculateBonus(dexScore)}
             </p>
 
             <div className="w-20  flex justify-center">
@@ -475,8 +510,8 @@ export default function ViewCharacter() {
           </div>
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">CON</p>
-            <p id="conBonus" className=" text-md">
-              +1
+            <p id="conBonus" className="text-md">
+              {calculateBonus(conScore)}
             </p>
 
             <div className="w-20  flex justify-center">
@@ -491,8 +526,8 @@ export default function ViewCharacter() {
           </div>
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">INT</p>
-            <p id="intBonus" className=" text-md">
-              +1
+            <p id="intBonus" className="text-md">
+              {calculateBonus(intScore)}
             </p>
 
             <div className="w-20  flex justify-center">
@@ -507,8 +542,8 @@ export default function ViewCharacter() {
           </div>
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">WIS</p>
-            <p id="wisBonus" className=" text-md">
-              +1
+            <p id="wisBonus" className="text-md">
+              {calculateBonus(wisScore)}
             </p>
 
             <div className="w-20  flex justify-center">
@@ -523,8 +558,8 @@ export default function ViewCharacter() {
           </div>
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">CHA</p>
-            <p id="wisBonus" className=" text-md">
-              +1
+            <p id="chaBonus" className="text-md">
+              {calculateBonus(chaScore)}
             </p>
 
             <div className="w-20  flex justify-center">
