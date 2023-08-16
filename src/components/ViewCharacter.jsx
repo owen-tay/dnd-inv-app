@@ -55,156 +55,19 @@ export default function ViewCharacter() {
 
   //stats usestates
   const [strScore, setStrScore] = useState(0);
-  const [dexScore, setDexScore] = useState(0);
-  const [conScore, setConScore] = useState(0);
-  const [intScore, setIntScore] = useState(0);
-  const [wisScore, setWisScore] = useState(0);
-  const [chaScore, setChaScore] = useState(0);
 
   const handleStrInputChange = (e) => {
     const newValue = parseInt(e.target.value, 10) || 0;
     setStrScore(newValue);
-    writeUserData2(
-      goldValue,
-      levelValue,
-      currentHp,
-      maxHp,
-      newValue,
-      dexScore,
-      conScore,
-      intScore,
-      wisScore,
-      chaScore
-    );
-  };
-  //big table off bonus stats
-  const calculateBonus = (statValue) => {
-    if (statValue <= 1) {
-      return -5;
-    } else if (statValue <= 3) {
-      return -4;
-    } else if (statValue <= 5) {
-      return -3;
-    } else if (statValue <= 7) {
-      return -2;
-    } else if (statValue <= 9) {
-      return -1;
-    } else if (statValue <= 11) {
-      return 0;
-    } else if (statValue <= 13) {
-      return "+1";
-    } else if (statValue <= 15) {
-      return "+2";
-    } else if (statValue <= 17) {
-      return "+3";
-    } else if (statValue <= 19) {
-      return "+4";
-    } else if (statValue <= 21) {
-      return "+5";
-    } else if (statValue <= 23) {
-      return "+6";
-    } else if (statValue <= 25) {
-      return "+7";
-    } else if (statValue <= 27) {
-      return "+8";
-    } else if (statValue <= 29) {
-      return "+9";
-    } else {
-      return "+10";
-    }
-  };
-  
-
-  const handleDexInputChange = (e) => {
-    const newValue = parseInt(e.target.value, 10) || 0;
-    setDexScore(newValue);
-    writeUserData2(
-      goldValue,
-      levelValue,
-      currentHp,
-      maxHp,
-      strScore,
-      newValue,
-      conScore,
-      intScore,
-      wisScore,
-      chaScore
-    );
-  };
-
-  const handleConInputChange = (e) => {
-    const newValue = parseInt(e.target.value, 10) || 0;
-    setConScore(newValue);
-    writeUserData2(
-      goldValue,
-      levelValue,
-      currentHp,
-      maxHp,
-      strScore,
-      dexScore,
-      newValue,
-      intScore,
-      wisScore,
-      chaScore
-    );
-  };
-
-  const handleIntInputChange = (e) => {
-    const newValue = parseInt(e.target.value, 10) || 0;
-    setIntScore(newValue);
-    writeUserData2(
-      goldValue,
-      levelValue,
-      currentHp,
-      maxHp,
-      strScore,
-      dexScore,
-      conScore,
-      newValue,
-      wisScore,
-      chaScore
-    );
-  };
-
-  const handleWisInputChange = (e) => {
-    const newValue = parseInt(e.target.value, 10) || 0;
-    setWisScore(newValue);
-    writeUserData2(
-      goldValue,
-      levelValue,
-      currentHp,
-      maxHp,
-      strScore,
-      dexScore,
-      conScore,
-      intScore,
-      newValue,
-      chaScore
-    );
-  };
-
-  const handleChaInputChange = (e) => {
-    const newValue = parseInt(e.target.value, 10) || 0;
-    setChaScore(newValue);
-    writeUserData2(
-      goldValue,
-      levelValue,
-      currentHp,
-      maxHp,
-      strScore,
-      dexScore,
-      conScore,
-      intScore,
-      wisScore,
-      newValue
-    );
+    writeUserData2(goldValue, levelValue, currentHp, maxHp, newValue, strScore);
   };
 
   useEffect(() => {
+    // Reset state every time the user changes.
     resetState();
 
     if (!user) {
-      return; // If no user don't go .
+      return; // If no user, don't proceed.
     }
 
     const handleValueChange = (snapshot) => {
@@ -219,13 +82,7 @@ export default function ViewCharacter() {
         setCurrentHp(data.currentHp || 0);
         setMaxHp(data.maxHp || 0);
 
-        setStrScore(data.str || 0);
-        setDexScore(data.dex || 0);
-        setConScore(data.con || 0);
-        setIntScore(data.int || 0);
-        setWisScore(data.wis || 0);
-        setChaScore(data.cha || 0);
-
+        // Set imageURL if it exists in the data
         if (data.imgurl) {
           setImageURL(data.imgurl);
         }
@@ -262,14 +119,17 @@ export default function ViewCharacter() {
     const file = e.target.files[0];
 
     if (file) {
+      // File Type and Size Checks as above...
 
       const db = getDatabase();
       const userRef = ref(db, "users/" + user.uid);
 
+      // Retrieve existing imageURL from the database
       const snapshot = await get(userRef);
       if (snapshot.exists() && snapshot.val().imgurl) {
         const oldImageURL = snapshot.val().imgurl;
 
+        // Get reference to old image in storage and delete it
         const storage = getStorage();
         const oldImageRef = storageRef(storage, oldImageURL);
         await deleteObject(oldImageRef);
@@ -278,6 +138,7 @@ export default function ViewCharacter() {
       try {
         const imageURL = await uploadImage(file, user.uid);
 
+        // Save the new imageURL to the database
         update(userRef, {
           imgurl: imageURL,
         });
@@ -332,9 +193,10 @@ export default function ViewCharacter() {
     setCurrentHp(newValue);
     writeUserData2(goldValue, levelValue, newValue, maxHp);
 
-    // Apply the scalee effect
+    // Apply the scaling effect
     setImageScale(true);
 
+    // Delay removing the scaling effect after 0.5 seconds
     setTimeout(() => {
       setImageScale(false);
     }, 200);
@@ -361,18 +223,7 @@ export default function ViewCharacter() {
     }
   };
 
-  function writeUserData2(
-    gold,
-    level,
-    currentHp,
-    maxHp,
-    str,
-    dex,
-    con,
-    int,
-    wis,
-    cha
-  ) {
+  function writeUserData2(gold, level, currentHp, maxHp) {
     const db = getDatabase();
     const reference = ref(db, "users/" + user.uid);
     update(reference, {
@@ -380,12 +231,6 @@ export default function ViewCharacter() {
       level: level,
       currentHp: currentHp,
       maxHp: maxHp,
-      str: str,
-      dex: dex,
-      con: con,
-      int: int,
-      wis: wis,
-      cha: cha,
     });
   }
 
@@ -393,6 +238,27 @@ export default function ViewCharacter() {
     const hideshowDiv = document.getElementById("showHide");
     hideshowDiv.classList.toggle("hidden");
   };
+
+  const handleAbilityScoreChange = (ability, delta) => {
+  // Determine the corresponding ability score state and its update function
+  let scoreState, updateScoreFunction;
+  switch (ability) {
+    case "str":
+      scoreState = strScore;
+      updateScoreFunction = setStrScore;
+      break;
+    // Add cases for other abilities
+    default:
+      break;
+  }
+
+  // Calculate the new ability score and update the state
+  const newScore = scoreState + delta;
+  updateScoreFunction(newScore);
+
+  // Call the common function to update the user data
+  writeUserData2(goldValue, levelValue, currentHp, maxHp, newScore, strScore);
+};
 
   return (
     <div className="mt-2">
@@ -475,101 +341,82 @@ export default function ViewCharacter() {
         <p className="mb-2">Hide/Show Stats</p>
       </div>
       <div id="showHide" className=" ">
-        <div className="flex justify-center gap-1">
-          <div className=" flex flex-col bg-base-200  w-12 sm:w-20 h-20 items-center justify-center rounded-lg">
-            <p className=" text-xs">STR</p>
+        <div className="flex flex-wrap justify-center gap-1">
+          <div className="flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className="text-xs">STR</p>
             <p id="strBonus" className="text-md">
-              {calculateBonus(strScore)}
+              +1
             </p>
-
-            <div className=" w-12 sm:w-20  flex justify-center">
+            <div className="w-20 flex justify-center">
+              <button
+                className="text-2xl"
+                onClick={() => handleAbilityScoreChange("str", -1)}
+              >
+                -
+              </button>
               <input
                 id="strInput"
                 className="w-8"
                 type="number"
                 value={strScore}
                 onChange={handleStrInputChange}
-              />{" "}
+              />
+              <button
+                className="text-2xl"
+                onClick={() => handleAbilityScoreChange("str", 1)}
+              >
+                +
+              </button>
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200  w-12 sm:w-20 h-20 items-center justify-center rounded-lg">
+          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">DEX</p>
-            <p id="dexBonus" className="text-md">
-              {calculateBonus(dexScore)}
+            <p id="dexBonus" className=" text-md">
+              +1
             </p>
 
-            <div className=" w-12 sm:w-20  flex justify-center">
-              <input
-                id="dexInput"
-                className="w-8"
-                type="number"
-                value={dexScore}
-                onChange={handleDexInputChange}
-              />{" "}
+            <div className="w-20  flex justify-center">
+              <input id="dexInput" className=" w-8" type="number"></input>
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200  w-12 sm:w-20 h-20 items-center justify-center rounded-lg">
+          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">CON</p>
-            <p id="conBonus" className="text-md">
-              {calculateBonus(conScore)}
+            <p id="conBonus" className=" text-md">
+              +1
             </p>
 
-            <div className=" w-12 sm:w-20  flex justify-center">
-              <input
-                id="conInput"
-                className="w-8"
-                type="number"
-                value={conScore}
-                onChange={handleConInputChange}
-              />{" "}
+            <div className="w-20  flex justify-center">
+              <input id="conInput" className=" w-8" type="number"></input>
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200  w-12 sm:w-20 h-20 items-center justify-center rounded-lg">
+          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">INT</p>
-            <p id="intBonus" className="text-md">
-              {calculateBonus(intScore)}
+            <p id="intBonus" className=" text-md">
+              +1
             </p>
 
-            <div className=" w-12 sm:w-20  flex justify-center">
-              <input
-                id="intInput"
-                className="w-8"
-                type="number"
-                value={intScore}
-                onChange={handleIntInputChange}
-              />{" "}
+            <div className="w-20  flex justify-center">
+              <input id="intInput" className=" w-8" type="number"></input>
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200  w-12 sm:w-20 h-20 items-center justify-center rounded-lg">
+          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">WIS</p>
-            <p id="wisBonus" className="text-md">
-              {calculateBonus(wisScore)}
+            <p id="wisBonus" className=" text-md">
+              +1
             </p>
 
-            <div className=" w-12 sm:w-20  flex justify-center">
-              <input
-                id="wisInput"
-                className="w-8"
-                type="number"
-                value={wisScore}
-                onChange={handleWisInputChange}
-              />{" "}
+            <div className="w-20  flex justify-center">
+              <input id="wisInput" className=" w-8" type="number"></input>
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200  w-12 sm:w-20 h-20 items-center justify-center rounded-lg">
+          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">CHA</p>
-            <p id="chaBonus" className="text-md">
-              {calculateBonus(chaScore)}
+            <p id="wisBonus" className=" text-md">
+              +1
             </p>
 
-            <div className=" w-12 sm:w-20   flex justify-center">
-              <input
-                id="chaInput"
-                className="w-8"
-                type="number"
-                value={chaScore}
-                onChange={handleChaInputChange}
-              />{" "}
+            <div className="w-20  flex justify-center">
+              <input id="wisInput" className=" w-8" type="number"></input>
             </div>
           </div>
         </div>
