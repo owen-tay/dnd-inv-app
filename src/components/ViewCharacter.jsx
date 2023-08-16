@@ -476,13 +476,13 @@ export default function ViewCharacter() {
       </div>
       <div id="showHide" className=" ">
         <div className="flex justify-center gap-1">
-          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+          <div className=" flex flex-col bg-base-200  w-12 sm:w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">STR</p>
             <p id="strBonus" className="text-md">
               {calculateBonus(strScore)}
             </p>
 
-            <div className="w-20  flex justify-center">
+            <div className=" w-12 sm:w-20  flex justify-center">
               <input
                 id="strInput"
                 className="w-8"
@@ -492,13 +492,13 @@ export default function ViewCharacter() {
               />{" "}
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+          <div className=" flex flex-col bg-base-200  w-12 sm:w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">DEX</p>
             <p id="dexBonus" className="text-md">
               {calculateBonus(dexScore)}
             </p>
 
-            <div className="w-20  flex justify-center">
+            <div className=" w-12 sm:w-20  flex justify-center">
               <input
                 id="dexInput"
                 className="w-8"
@@ -508,13 +508,13 @@ export default function ViewCharacter() {
               />{" "}
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+          <div className=" flex flex-col bg-base-200  w-12 sm:w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">CON</p>
             <p id="conBonus" className="text-md">
               {calculateBonus(conScore)}
             </p>
 
-            <div className="w-20  flex justify-center">
+            <div className=" w-12 sm:w-20  flex justify-center">
               <input
                 id="conInput"
                 className="w-8"
@@ -524,13 +524,13 @@ export default function ViewCharacter() {
               />{" "}
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+          <div className=" flex flex-col bg-base-200  w-12 sm:w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">INT</p>
             <p id="intBonus" className="text-md">
               {calculateBonus(intScore)}
             </p>
 
-            <div className="w-20  flex justify-center">
+            <div className=" w-12 sm:w-20  flex justify-center">
               <input
                 id="intInput"
                 className="w-8"
@@ -540,13 +540,13 @@ export default function ViewCharacter() {
               />{" "}
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+          <div className=" flex flex-col bg-base-200  w-12 sm:w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">WIS</p>
             <p id="wisBonus" className="text-md">
               {calculateBonus(wisScore)}
             </p>
 
-            <div className="w-20  flex justify-center">
+            <div className=" w-12 sm:w-20  flex justify-center">
               <input
                 id="wisInput"
                 className="w-8"
@@ -556,13 +556,13 @@ export default function ViewCharacter() {
               />{" "}
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+          <div className=" flex flex-col bg-base-200  w-12 sm:w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">CHA</p>
             <p id="chaBonus" className="text-md">
               {calculateBonus(chaScore)}
             </p>
 
-            <div className="w-20  flex justify-center">
+            <div className=" w-12 sm:w-20   flex justify-center">
               <input
                 id="chaInput"
                 className="w-8"
