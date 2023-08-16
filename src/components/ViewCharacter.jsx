@@ -53,12 +53,123 @@ export default function ViewCharacter() {
     setItemDescription("");
   };
 
+  //stats usestates
+  const [strScore, setStrScore] = useState(0);
+  const [dexScore, setDexScore] = useState(0);
+  const [conScore, setConScore] = useState(0);
+  const [intScore, setIntScore] = useState(0);
+  const [wisScore, setWisScore] = useState(0);
+  const [chaScore, setChaScore] = useState(0);
+
+  const handleStrInputChange = (e) => {
+    const newValue = parseInt(e.target.value, 10) || 0;
+    setStrScore(newValue);
+    writeUserData2(
+      goldValue,
+      levelValue,
+      currentHp,
+      maxHp,
+      newValue,
+      dexScore,
+      conScore,
+      intScore,
+      wisScore,
+      chaScore
+    );
+  };
+  
+  
+
+  const handleDexInputChange = (e) => {
+    const newValue = parseInt(e.target.value, 10) || 0;
+    setDexScore(newValue);
+    writeUserData2(
+      goldValue,
+      levelValue,
+      currentHp,
+      maxHp,
+      strScore,
+      newValue,
+      conScore,
+      intScore,
+      wisScore,
+      chaScore
+    );
+  };
+
+  const handleConInputChange = (e) => {
+    const newValue = parseInt(e.target.value, 10) || 0;
+    setConScore(newValue);
+    writeUserData2(
+      goldValue,
+      levelValue,
+      currentHp,
+      maxHp,
+      strScore,
+      dexScore,
+      newValue,
+      intScore,
+      wisScore,
+      chaScore
+    );
+  };
+
+  const handleIntInputChange = (e) => {
+    const newValue = parseInt(e.target.value, 10) || 0;
+    setIntScore(newValue);
+    writeUserData2(
+      goldValue,
+      levelValue,
+      currentHp,
+      maxHp,
+      strScore,
+      dexScore,
+      conScore,
+      newValue,
+      wisScore,
+      chaScore
+    );
+  };
+
+  const handleWisInputChange = (e) => {
+    const newValue = parseInt(e.target.value, 10) || 0;
+    setWisScore(newValue);
+    writeUserData2(
+      goldValue,
+      levelValue,
+      currentHp,
+      maxHp,
+      strScore,
+      dexScore,
+      conScore,
+      intScore,
+      newValue,
+      chaScore
+    );
+  };
+
+  const handleChaInputChange = (e) => {
+    const newValue = parseInt(e.target.value, 10) || 0;
+    setChaScore(newValue);
+    writeUserData2(
+      goldValue,
+      levelValue,
+      currentHp,
+      maxHp,
+      strScore,
+      dexScore,
+      conScore,
+      intScore,
+      wisScore,
+      newValue
+    );
+  };
+
   useEffect(() => {
-    // Reset state every time the user changes.
     resetState();
 
     if (!user) {
-      return; // If no user, don't proceed.
+      return; // If no user don't go .
     }
 
     const handleValueChange = (snapshot) => {
@@ -73,7 +184,13 @@ export default function ViewCharacter() {
         setCurrentHp(data.currentHp || 0);
         setMaxHp(data.maxHp || 0);
 
-        // Set imageURL if it exists in the data
+        setStrScore(data.str || 0);
+        setDexScore(data.dex || 0);
+        setConScore(data.con || 0);
+        setIntScore(data.int || 0);
+        setWisScore(data.wis || 0);
+        setChaScore(data.cha || 0);
+
         if (data.imgurl) {
           setImageURL(data.imgurl);
         }
@@ -110,17 +227,14 @@ export default function ViewCharacter() {
     const file = e.target.files[0];
 
     if (file) {
-      // File Type and Size Checks as above...
 
       const db = getDatabase();
       const userRef = ref(db, "users/" + user.uid);
 
-      // Retrieve existing imageURL from the database
       const snapshot = await get(userRef);
       if (snapshot.exists() && snapshot.val().imgurl) {
         const oldImageURL = snapshot.val().imgurl;
 
-        // Get reference to old image in storage and delete it
         const storage = getStorage();
         const oldImageRef = storageRef(storage, oldImageURL);
         await deleteObject(oldImageRef);
@@ -129,7 +243,6 @@ export default function ViewCharacter() {
       try {
         const imageURL = await uploadImage(file, user.uid);
 
-        // Save the new imageURL to the database
         update(userRef, {
           imgurl: imageURL,
         });
@@ -184,10 +297,9 @@ export default function ViewCharacter() {
     setCurrentHp(newValue);
     writeUserData2(goldValue, levelValue, newValue, maxHp);
 
-    // Apply the scaling effect
+    // Apply the scalee effect
     setImageScale(true);
 
-    // Delay removing the scaling effect after 0.5 seconds
     setTimeout(() => {
       setImageScale(false);
     }, 200);
@@ -214,7 +326,18 @@ export default function ViewCharacter() {
     }
   };
 
-  function writeUserData2(gold, level, currentHp, maxHp) {
+  function writeUserData2(
+    gold,
+    level,
+    currentHp,
+    maxHp,
+    str,
+    dex,
+    con,
+    int,
+    wis,
+    cha
+  ) {
     const db = getDatabase();
     const reference = ref(db, "users/" + user.uid);
     update(reference, {
@@ -222,6 +345,12 @@ export default function ViewCharacter() {
       level: level,
       currentHp: currentHp,
       maxHp: maxHp,
+      str: str,
+      dex: dex,
+      con: con,
+      int: int,
+      wis: wis,
+      cha: cha,
     });
   }
 
@@ -308,9 +437,107 @@ export default function ViewCharacter() {
         </div>
       </div>
       <div className="flex justify-center">
-        <p>Hide/Show Stats</p>
+        <p className="mb-2">Hide/Show Stats</p>
       </div>
       <div id="showHide" className=" ">
+        <div className="flex justify-center gap-1">
+          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className=" text-xs">STR</p>
+            <p id="strBonus" className=" text-md">
+              +1
+            </p>
+
+            <div className="w-20  flex justify-center">
+              <input
+                id="strInput"
+                className="w-8"
+                type="number"
+                value={strScore}
+                onChange={handleStrInputChange}
+              />{" "}
+            </div>
+          </div>
+          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className=" text-xs">DEX</p>
+            <p id="dexBonus" className=" text-md">
+              +1
+            </p>
+
+            <div className="w-20  flex justify-center">
+              <input
+                id="dexInput"
+                className="w-8"
+                type="number"
+                value={dexScore}
+                onChange={handleDexInputChange}
+              />{" "}
+            </div>
+          </div>
+          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className=" text-xs">CON</p>
+            <p id="conBonus" className=" text-md">
+              +1
+            </p>
+
+            <div className="w-20  flex justify-center">
+              <input
+                id="conInput"
+                className="w-8"
+                type="number"
+                value={conScore}
+                onChange={handleConInputChange}
+              />{" "}
+            </div>
+          </div>
+          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className=" text-xs">INT</p>
+            <p id="intBonus" className=" text-md">
+              +1
+            </p>
+
+            <div className="w-20  flex justify-center">
+              <input
+                id="intInput"
+                className="w-8"
+                type="number"
+                value={intScore}
+                onChange={handleIntInputChange}
+              />{" "}
+            </div>
+          </div>
+          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className=" text-xs">WIS</p>
+            <p id="wisBonus" className=" text-md">
+              +1
+            </p>
+
+            <div className="w-20  flex justify-center">
+              <input
+                id="wisInput"
+                className="w-8"
+                type="number"
+                value={wisScore}
+                onChange={handleWisInputChange}
+              />{" "}
+            </div>
+          </div>
+          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className=" text-xs">CHA</p>
+            <p id="wisBonus" className=" text-md">
+              +1
+            </p>
+
+            <div className="w-20  flex justify-center">
+              <input
+                id="chaInput"
+                className="w-8"
+                type="number"
+                value={chaScore}
+                onChange={handleChaInputChange}
+              />{" "}
+            </div>
+          </div>
+        </div>
         <div className="mt-4 text-center">
           <div className="flex flex-wrap justify-center gap-4">
             <div className="  w-36 h-36">
@@ -384,7 +611,7 @@ export default function ViewCharacter() {
               <button
                 className=" text-2xl m-2"
                 onClick={() => handleHpChange("current", 1)}
-                >
+              >
                 +
               </button>
               <span className=" text-2xl">/</span>
