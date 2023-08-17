@@ -28,7 +28,7 @@ function MyForm() {
 
   return (
     <div className="flex justify-center items-center w-screen h-80">
-      <div className="flex justify-center">
+      <div className="">
         <form onSubmit={handleSubmit}>
           <label htmlFor="name">
             What is your Characters Name?
@@ -37,12 +37,13 @@ function MyForm() {
               placeholder="Type here"
               name="name"
               value={formState.name}
-              className="input input-bordered w-full max-w-xs"
+              className="input input-bordered w-full"
               onChange={handleChange}
             />
           </label>
-
-          <button type="submit" className="btn btn-accent">Submit</button>
+      <div className="flex justify-center">
+          <button type="submit" className="mt-2 btn btn-accent">Submit</button>
+          </div>
         </form>
       </div>
     </div>
