@@ -54,12 +54,50 @@ export default function ViewCharacter() {
   };
 
   //stats usestates
-  const [strScore, setStrScore] = useState(0);
 
-  const handleStrInputChange = (e) => {
-    const newValue = parseInt(e.target.value, 10) || 0;
-    setStrScore(newValue);
-    writeUserData2(goldValue, levelValue, currentHp, maxHp, newValue, strScore);
+  const [strValue, setStrValue] = useState(1);
+  const [dexValue, setDexValue] = useState(1);
+  const [conValue, setConValue] = useState(1);
+  const [intValue, setIntValue] = useState(1);
+  const [wisValue, setWisValue] = useState(1);
+  const [chaValue, setChaValue] = useState(1);
+
+  //ablity score table function. this thing is massive
+
+  const calculateBonus = (statValue) => {
+    if (statValue <= 1) {
+      return -5;
+    } else if (statValue <= 3) {
+      return -4;
+    } else if (statValue <= 5) {
+      return -3;
+    } else if (statValue <= 7) {
+      return -2;
+    } else if (statValue <= 9) {
+      return -1;
+    } else if (statValue <= 11) {
+      return 0;
+    } else if (statValue <= 13) {
+      return 1;
+    } else if (statValue <= 15) {
+      return 2;
+    } else if (statValue <= 17) {
+      return 3;
+    } else if (statValue <= 19) {
+      return 4;
+    } else if (statValue <= 21) {
+      return 5;
+    } else if (statValue <= 23) {
+      return 6;
+    } else if (statValue <= 25) {
+      return 7;
+    } else if (statValue <= 27) {
+      return 8;
+    } else if (statValue <= 29) {
+      return 9;
+    } else {
+      return 10;
+    }
   };
 
   useEffect(() => {
@@ -81,6 +119,12 @@ export default function ViewCharacter() {
         setLevelValue(data.level || 0);
         setCurrentHp(data.currentHp || 0);
         setMaxHp(data.maxHp || 0);
+        setStrValue(data.str || 0);
+        setDexValue(data.dex || 0);
+        setConValue(data.con || 0);
+        setIntValue(data.int || 0);
+        setWisValue(data.wis || 0);
+        setChaValue(data.cha || 0);
 
         // Set imageURL if it exists in the data
         if (data.imgurl) {
@@ -223,42 +267,42 @@ export default function ViewCharacter() {
     }
   };
 
-  function writeUserData2(gold, level, currentHp, maxHp) {
+  function writeUserData2(
+    gold,
+    level,
+    currentHp,
+    maxHp,
+    str,
+    dex,
+    con,
+    int,
+    wis,
+    cha
+  ) {
     const db = getDatabase();
     const reference = ref(db, "users/" + user.uid);
-    update(reference, {
+  
+    const updateObject = {
       gold: gold,
       level: level,
       currentHp: currentHp,
       maxHp: maxHp,
-    });
+    };
+  
+    if (str !== undefined) updateObject.str = str;
+    if (dex !== undefined) updateObject.dex = dex;
+    if (con !== undefined) updateObject.con = con;
+    if (int !== undefined) updateObject.int = int;
+    if (wis !== undefined) updateObject.wis = wis;
+    if (cha !== undefined) updateObject.cha = cha;
+  
+    update(reference, updateObject);
   }
 
   const toggleVisibility = () => {
     const hideshowDiv = document.getElementById("showHide");
     hideshowDiv.classList.toggle("hidden");
   };
-
-  const handleAbilityScoreChange = (ability, delta) => {
-  // Determine the corresponding ability score state and its update function
-  let scoreState, updateScoreFunction;
-  switch (ability) {
-    case "str":
-      scoreState = strScore;
-      updateScoreFunction = setStrScore;
-      break;
-    // Add cases for other abilities
-    default:
-      break;
-  }
-
-  // Calculate the new ability score and update the state
-  const newScore = scoreState + delta;
-  updateScoreFunction(newScore);
-
-  // Call the common function to update the user data
-  writeUserData2(goldValue, levelValue, currentHp, maxHp, newScore, strScore);
-};
 
   return (
     <div className="mt-2">
@@ -342,81 +386,190 @@ export default function ViewCharacter() {
       </div>
       <div id="showHide" className=" ">
         <div className="flex flex-wrap justify-center gap-1">
-          <div className="flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
-            <p className="text-xs">STR</p>
-            <p id="strBonus" className="text-md">
-              +1
+          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className=" text-xs">STR</p>
+            <p id="strBonus" className=" text-md">
+            {calculateBonus(strValue)}
             </p>
-            <div className="w-20 flex justify-center">
-              <button
-                className="text-2xl"
-                onClick={() => handleAbilityScoreChange("str", -1)}
-              >
-                -
-              </button>
+
+            <div className="w-20  flex justify-center">
               <input
                 id="strInput"
                 className="w-8"
                 type="number"
-                value={strScore}
-                onChange={handleStrInputChange}
-              />
-              <button
-                className="text-2xl"
-                onClick={() => handleAbilityScoreChange("str", 1)}
-              >
-                +
-              </button>
+                value={strValue}
+                onChange={(e) => {
+                  const newValue = parseInt(e.target.value, 10) || 0;
+                  setStrValue(newValue);
+                  writeUserData2(
+                    goldValue,
+                    levelValue,
+                    currentHp,
+                    maxHp,
+                    newValue,
+                    dexValue,
+                    conValue,
+                    intValue,
+                    wisValue,
+                    chaValue
+                  );
+                }}
+              />{" "}
             </div>
           </div>
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">DEX</p>
             <p id="dexBonus" className=" text-md">
-              +1
+            {calculateBonus(dexValue)}
             </p>
 
             <div className="w-20  flex justify-center">
-              <input id="dexInput" className=" w-8" type="number"></input>
+              <input
+                id="dexInput"
+                className="w-8"
+                type="number"
+                value={dexValue}
+                onChange={(e) => {
+                  const newValue = parseInt(e.target.value, 10) || 0;
+                  setDexValue(newValue);
+                  writeUserData2(
+                    goldValue,
+                    levelValue,
+                    currentHp,
+                    maxHp,
+                    strValue,
+                    newValue,
+                    conValue,
+                    intValue,
+                    wisValue,
+                    chaValue
+                  );
+                }}
+              />{" "}
             </div>
           </div>
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">CON</p>
             <p id="conBonus" className=" text-md">
-              +1
+            {calculateBonus(conValue)}
             </p>
 
             <div className="w-20  flex justify-center">
-              <input id="conInput" className=" w-8" type="number"></input>
+              <input
+                id="conInput"
+                className="w-8"
+                type="number"
+                value={conValue}
+                onChange={(e) => {
+                  const newValue = parseInt(e.target.value, 10) || 0;
+                  setConValue(newValue);
+                  writeUserData2(
+                    goldValue,
+                    levelValue,
+                    currentHp,
+                    maxHp,
+                    strValue,
+                    dexValue,
+                    newValue,
+                    intValue,
+                    wisValue,
+                    chaValue
+                  );
+                }}
+              />{" "}
             </div>
           </div>
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">INT</p>
             <p id="intBonus" className=" text-md">
-              +1
+            {calculateBonus(intValue)}
             </p>
 
             <div className="w-20  flex justify-center">
-              <input id="intInput" className=" w-8" type="number"></input>
+              <input
+                id="intInput"
+                className="w-8"
+                type="number"
+                value={intValue}
+                onChange={(e) => {
+                  const newValue = parseInt(e.target.value, 10) || 0;
+                  setIntValue(newValue);
+                  writeUserData2(
+                    goldValue,
+                    levelValue,
+                    currentHp,
+                    maxHp,
+                    strValue,
+                    dexValue,
+                    conValue,
+                    newValue,
+                    wisValue,
+                    chaValue
+                  );
+                }}
+              />{" "}
             </div>
           </div>
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">WIS</p>
             <p id="wisBonus" className=" text-md">
-              +1
+            {calculateBonus(wisValue)}
             </p>
 
             <div className="w-20  flex justify-center">
-              <input id="wisInput" className=" w-8" type="number"></input>
+              <input
+                id="wisInput"
+                className="w-8"
+                type="number"
+                value={wisValue}
+                onChange={(e) => {
+                  const newValue = parseInt(e.target.value, 10) || 0;
+                  setWisValue(newValue);
+                  writeUserData2(
+                    goldValue,
+                    levelValue,
+                    currentHp,
+                    maxHp,
+                    strValue,
+                    dexValue,
+                    conValue,
+                    intValue,
+                    newValue,
+                    chaValue
+                  );
+                }}
+              />{" "}
             </div>
           </div>
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">CHA</p>
             <p id="wisBonus" className=" text-md">
-              +1
+            {calculateBonus(chaValue)}
             </p>
 
             <div className="w-20  flex justify-center">
-              <input id="wisInput" className=" w-8" type="number"></input>
+              <input
+                id="chaInput"
+                className="w-8"
+                type="number"
+                value={chaValue}
+                onChange={(e) => {
+                  const newValue = parseInt(e.target.value, 10) || 0;
+                  setChaValue(newValue);
+                  writeUserData2(
+                    goldValue,
+                    levelValue,
+                    currentHp,
+                    maxHp,
+                    strValue,
+                    dexValue,
+                    conValue,
+                    intValue,
+                    wisValue,
+                    newValue
+                  );
+                }}
+              />{" "}
             </div>
           </div>
         </div>
