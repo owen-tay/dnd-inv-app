@@ -371,7 +371,7 @@ export default function ViewCharacter() {
         {" "}
         {characterName}
       </h1>
-      <div className="flex justify-center w-screen">
+      <div className="flex justify-center">
         <img
           src={imageURL}
           alt="profile pic"
