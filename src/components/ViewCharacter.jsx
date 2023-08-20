@@ -22,6 +22,8 @@ import {
 } from "firebase/database";
 import { dbRef, uidCookie } from "../firebase";
 import ItemComponent from "./ItemComponent";
+import ApiFetch from "./ApiFetch";
+import SpellComponent from "./SpellComponent";
 
 export default function ViewCharacter() {
   const { user } = UserAuth();
@@ -61,6 +63,26 @@ export default function ViewCharacter() {
   const [intValue, setIntValue] = useState(1);
   const [wisValue, setWisValue] = useState(1);
   const [chaValue, setChaValue] = useState(1);
+
+  //this is for the spells api
+  const [selectedSpells, setSelectedSpells] = useState([]);
+
+  const [selectedSpellInfo, setSelectedSpellInfo] = useState(null);
+
+  const handleAddSpell = (selectedSpellInfo) => {
+    if (selectedSpellInfo) {
+      const db = getDatabase();
+      const userSpellsRef = ref(db, `users/${user.uid}/spells`);
+
+      // Push the selected spell's information to the user's spells collection
+      const newSpellRef = push(userSpellsRef);
+
+      set(newSpellRef, selectedSpellInfo);
+
+      // Close the modal after adding the spell
+      window.my_modal_5.close();
+    }
+  };
 
   //ablity score table function. this thing is massive
 
@@ -103,14 +125,14 @@ export default function ViewCharacter() {
   useEffect(() => {
     // Reset state every time the user changes.
     resetState();
-
+  
     if (!user) {
       return; // If no user, don't proceed.
     }
-
+  
     const handleValueChange = (snapshot) => {
       const data = snapshot.val();
-
+  
       if (data) {
         if (data.name) {
           setCharacterName(data.name);
@@ -125,7 +147,7 @@ export default function ViewCharacter() {
         setIntValue(data.int || 0);
         setWisValue(data.wis || 0);
         setChaValue(data.cha || 0);
-
+  
         // Set imageURL if it exists in the data
         if (data.imgurl) {
           setImageURL(data.imgurl);
@@ -133,29 +155,47 @@ export default function ViewCharacter() {
       }
     };
 
-    // Construct the dbRef inside the useEffect using the user's UID.
-    const userDbRef = ref(getDatabase(), "users/" + user.uid);
-
-    onValue(userDbRef, handleValueChange);
-
-    const itemsRef = ref(getDatabase(), "users/" + user.uid + "/items");
-
-    const handleItemsChange = (snapshot) => {
-      const data = snapshot.val();
-      const formattedItems = [];
-      for (let key in data) {
-        formattedItems.push({ id: key, ...data[key] });
-      }
-      setItems(formattedItems);
-    };
-
+    const userDbRef = ref(getDatabase(), "users/" + user.uid);	
+    onValue(userDbRef, handleValueChange);	
+    const itemsRef = ref(getDatabase(), "users/" + user.uid + "/items");	
+    const handleItemsChange = (snapshot) => {	
+      const data = snapshot.val();	
+      const formattedItems = [];	
+      for (let key in data) {	
+        formattedItems.push({ id: key, ...data[key] });	
+      }	
+      setItems(formattedItems);	
+    };	
     onValue(itemsRef, handleItemsChange);
+  
+    // Fetch selected spells from Firebase
+    const spellsRef = ref(getDatabase(), `users/${user.uid}/spells`);
+    onValue(spellsRef, (snapshot) => {
+      const spellsData = snapshot.val();
+      if (spellsData) {
+        const spellsArray = Object.keys(spellsData).map((key) => ({
+          id: key,
+          ...spellsData[key],
+        }));
+        setSelectedSpells(spellsArray);
+      } else {
+        setSelectedSpells([]);
+      }
+    });
+  
 
+    const characterRef = ref(getDatabase(), `users/${user.uid}`);
+    onValue(characterRef, handleValueChange);
+  
     return () => {
-      off(userDbRef, "value", handleValueChange);
+
+      off(spellsRef, "value"); 
+      off(characterRef, "value", handleValueChange); 
+      off(userDbRef, "value", handleValueChange);	
       off(itemsRef, "value", handleItemsChange);
     };
   }, [user]);
+  
 
   //image handler
 
@@ -212,6 +252,11 @@ export default function ViewCharacter() {
     );
     set(itemRef, null);
     setItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
+  };
+
+  const deleteSpell = (spellId) => {
+    const spellRef = ref(getDatabase(), `users/${user.uid}/spells/${spellId}`);
+    set(spellRef, null);
   };
 
   const handleGoldChange = (delta) => {
@@ -281,21 +326,21 @@ export default function ViewCharacter() {
   ) {
     const db = getDatabase();
     const reference = ref(db, "users/" + user.uid);
-  
+
     const updateObject = {
       gold: gold,
       level: level,
       currentHp: currentHp,
       maxHp: maxHp,
     };
-  
+
     if (str !== undefined) updateObject.str = str;
     if (dex !== undefined) updateObject.dex = dex;
     if (con !== undefined) updateObject.con = con;
     if (int !== undefined) updateObject.int = int;
     if (wis !== undefined) updateObject.wis = wis;
     if (cha !== undefined) updateObject.cha = cha;
-  
+
     update(reference, updateObject);
   }
 
@@ -341,6 +386,7 @@ export default function ViewCharacter() {
           </form>
         </dialog>
       </div>
+
       <div className=" mx-8 sm:mx-48">
         <div className="flex justify-center ">
           <p className=" text-lg text-accent-content">0HP</p>
@@ -381,6 +427,7 @@ export default function ViewCharacter() {
           </label>
         </div>
       </div>
+
       <div className="flex justify-center">
         <p className="mb-2">Hide/Show Stats</p>
       </div>
@@ -389,7 +436,7 @@ export default function ViewCharacter() {
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">STR</p>
             <p id="strBonus" className=" text-md">
-            {calculateBonus(strValue)}
+              {calculateBonus(strValue)}
             </p>
 
             <div className="w-20  flex justify-center">
@@ -420,7 +467,7 @@ export default function ViewCharacter() {
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">DEX</p>
             <p id="dexBonus" className=" text-md">
-            {calculateBonus(dexValue)}
+              {calculateBonus(dexValue)}
             </p>
 
             <div className="w-20  flex justify-center">
@@ -451,7 +498,7 @@ export default function ViewCharacter() {
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">CON</p>
             <p id="conBonus" className=" text-md">
-            {calculateBonus(conValue)}
+              {calculateBonus(conValue)}
             </p>
 
             <div className="w-20  flex justify-center">
@@ -482,7 +529,7 @@ export default function ViewCharacter() {
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">INT</p>
             <p id="intBonus" className=" text-md">
-            {calculateBonus(intValue)}
+              {calculateBonus(intValue)}
             </p>
 
             <div className="w-20  flex justify-center">
@@ -513,7 +560,7 @@ export default function ViewCharacter() {
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">WIS</p>
             <p id="wisBonus" className=" text-md">
-            {calculateBonus(wisValue)}
+              {calculateBonus(wisValue)}
             </p>
 
             <div className="w-20  flex justify-center">
@@ -544,7 +591,7 @@ export default function ViewCharacter() {
           <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
             <p className=" text-xs">CHA</p>
             <p id="wisBonus" className=" text-md">
-            {calculateBonus(chaValue)}
+              {calculateBonus(chaValue)}
             </p>
 
             <div className="w-20  flex justify-center">
@@ -687,6 +734,7 @@ export default function ViewCharacter() {
           >
             Add Image
           </button>
+          <ApiFetch user={user} handleAddSpellProp={handleAddSpell} />
           <dialog id="my_modal_3" className="modal">
             <form
               method="dialog"
@@ -749,9 +797,19 @@ export default function ViewCharacter() {
           </dialog>
         </div>
       </div>
-      <div id="viewItems" className="flex gap-4 flex-wrap justify-center">
+      <h2 className="text-center m-4 font-bold text-xl">Items:</h2>
+      <div id="viewItems" className="mt-4 justify-center flex flex-wrap gap-5 mb-10">
+
         {items.map((item) => (
           <ItemComponent key={item.id} item={item} onDelete={deleteItem} />
+        ))}
+
+      </div>
+      <h2 className="text-center m-4 font-bold text-xl">Spells:</h2>
+
+      <div className="mt-4 justify-center flex flex-wrap gap-5 mb-10" id="spells">
+        {selectedSpells.map((spell) => (
+          <SpellComponent key={spell.id} spell={spell} onDelete={deleteSpell} />
         ))}
       </div>
     </div>
