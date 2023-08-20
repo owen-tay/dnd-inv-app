@@ -55,8 +55,8 @@ const ApiFetch = ({ user, handleAddSpellProp }) => {
       >
         Add Spell
       </button>
-      <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle ">
-        <form method="dialog" className="modal-box  ">
+      <dialog id="my_modal_5" className="modal ">
+        <form method="dialog" className="modal-box">
           <div className="flex justify-center flex-col items-center">
             <h3 className="font-bold text-lg">Select A Spell</h3>
             <p className="py-4">
