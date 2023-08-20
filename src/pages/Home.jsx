@@ -16,7 +16,7 @@ function Home() {
             </h1>
             <p className="py-6 text-2xl text-accent-content">
               Track your characters items, spells and HP with this easy to use
-              web app.
+              web app. 
             </p>
             <div className="flex flex-col items-center  gap-2 justify-center sm:flex-row  ">
               <Link to="/Signin">

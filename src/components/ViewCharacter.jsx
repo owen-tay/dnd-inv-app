@@ -74,12 +74,12 @@ export default function ViewCharacter() {
       const db = getDatabase();
       const userSpellsRef = ref(db, `users/${user.uid}/spells`);
 
-      // Push the selected spell's information to the user's spells collection
+      // Push the selected spell's information to the users db collection
       const newSpellRef = push(userSpellsRef);
 
       set(newSpellRef, selectedSpellInfo);
 
-      // Close the modal after adding the spell
+      // Close poppupp
       window.my_modal_5.close();
     }
   };
@@ -122,17 +122,36 @@ export default function ViewCharacter() {
     }
   };
 
+  const handleDeleteUserData = async () => {
+    const db = getDatabase();
+    const userRef = ref(db, `users/${user.uid}`);
+
+    // Remove the user's character data
+    await set(userRef, null);
+
+    // Remove the user's items
+    const itemsRef = ref(db, `users/${user.uid}/items`);
+    await set(itemsRef, null);
+
+    // Remove the user's spells
+    const spellsRef = ref(db, `users/${user.uid}/spells`);
+    await set(spellsRef, null);
+
+    // Reset the component state
+    resetState();
+  };
+
   useEffect(() => {
     // Reset state every time the user changes.
     resetState();
-  
+
     if (!user) {
-      return; // If no user, don't proceed.
+      return; // If no user
     }
-  
+
     const handleValueChange = (snapshot) => {
       const data = snapshot.val();
-  
+
       if (data) {
         if (data.name) {
           setCharacterName(data.name);
@@ -147,7 +166,7 @@ export default function ViewCharacter() {
         setIntValue(data.int || 0);
         setWisValue(data.wis || 0);
         setChaValue(data.cha || 0);
-  
+
         // Set imageURL if it exists in the data
         if (data.imgurl) {
           setImageURL(data.imgurl);
@@ -155,19 +174,19 @@ export default function ViewCharacter() {
       }
     };
 
-    const userDbRef = ref(getDatabase(), "users/" + user.uid);	
-    onValue(userDbRef, handleValueChange);	
-    const itemsRef = ref(getDatabase(), "users/" + user.uid + "/items");	
-    const handleItemsChange = (snapshot) => {	
-      const data = snapshot.val();	
-      const formattedItems = [];	
-      for (let key in data) {	
-        formattedItems.push({ id: key, ...data[key] });	
-      }	
-      setItems(formattedItems);	
-    };	
+    const userDbRef = ref(getDatabase(), "users/" + user.uid);
+    onValue(userDbRef, handleValueChange);
+    const itemsRef = ref(getDatabase(), "users/" + user.uid + "/items");
+    const handleItemsChange = (snapshot) => {
+      const data = snapshot.val();
+      const formattedItems = [];
+      for (let key in data) {
+        formattedItems.push({ id: key, ...data[key] });
+      }
+      setItems(formattedItems);
+    };
     onValue(itemsRef, handleItemsChange);
-  
+
     // Fetch selected spells from Firebase
     const spellsRef = ref(getDatabase(), `users/${user.uid}/spells`);
     onValue(spellsRef, (snapshot) => {
@@ -182,20 +201,17 @@ export default function ViewCharacter() {
         setSelectedSpells([]);
       }
     });
-  
 
     const characterRef = ref(getDatabase(), `users/${user.uid}`);
     onValue(characterRef, handleValueChange);
-  
-    return () => {
 
-      off(spellsRef, "value"); 
-      off(characterRef, "value", handleValueChange); 
-      off(userDbRef, "value", handleValueChange);	
+    return () => {
+      off(spellsRef, "value");
+      off(characterRef, "value", handleValueChange);
+      off(userDbRef, "value", handleValueChange);
       off(itemsRef, "value", handleItemsChange);
     };
   }, [user]);
-  
 
   //image handler
 
@@ -736,81 +752,112 @@ export default function ViewCharacter() {
           </button>
           <ApiFetch user={user} handleAddSpellProp={handleAddSpell} />
           <dialog id="my_modal_3" className="modal">
-            <form
-              method="dialog"
-              className="modal-box"
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleItemSubmit();
-              }}
-            >
-              <button
-                type="button"
-                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                onClick={() => {
-                  window.my_modal_3.close(); //this shouldd Close the modal on click
+            <div className=" w-fit sm:w-96">
+              <form
+                method="dialog"
+                className="modal-box"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleItemSubmit();
                 }}
               >
-                ✕
-              </button>
-              <h3 className="font-bold text-lg"></h3>
-              <p className="py-4">Item Type</p>
-              <select
-                className="select select-bordered w-full max-w-xs"
-                required
-                value={itemType}
-                onChange={(e) => setItemType(e.target.value)}
-              >
-                <option value="" disabled>
-                  Pick an item type
-                </option>
-                <option value="Weapon">Weapon</option>
-                <option value="Magical Item">Magical Item</option>
-                <option value="Supplies">Supplies</option>
-                <option value="Other">Other</option>
-              </select>
-              <p className="py-4">Item Name</p>
-              <input
-                type="text"
-                required
-                placeholder="Type here"
-                className="input input-bordered w-full max-w-xs"
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-              />
-              <p className="py-4">Item Description</p>
-              <textarea
-                className="textarea textarea-bordered  w-full max-w-xs"
-                placeholder="Bio"
-                maxlength="1000"
-                required
-                value={itemDescription}
-                onChange={(e) => setItemDescription(e.target.value)}
-              ></textarea>
-              <p></p>
-              <div className="flex justify-center">
-                <button type="submit" className="btn mt-2 btn-secondary">
-                  Submit
+                <button
+                  type="button"
+                  className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                  onClick={() => {
+                    window.my_modal_3.close(); //this shouldd Close the modal on click
+                  }}
+                >
+                  ✕
                 </button>
-              </div>
-            </form>
+                <h3 className="font-bold text-lg"></h3>
+                <p className="py-4">Item Type</p>
+                <select
+                  className="select select-bordered w-full max-w-xs"
+                  required
+                  value={itemType}
+                  onChange={(e) => setItemType(e.target.value)}
+                >
+                  <option value="" disabled>
+                    Pick an item type
+                  </option>
+                  <option value="Weapon">Weapon</option>
+                  <option value="Magical Item">Magical Item</option>
+                  <option value="Supplies">Supplies</option>
+                  <option value="Other">Other</option>
+                </select>
+                <p className="py-4">Item Name</p>
+                <input
+                  type="text"
+                  required
+                  placeholder="Type here"
+                  className="input input-bordered w-full max-w-xs"
+                  value={itemName}
+                  onChange={(e) => setItemName(e.target.value)}
+                />
+                <p className="py-4">Item Description</p>
+                <textarea
+                  className="textarea textarea-bordered  w-full max-w-xs"
+                  placeholder="Bio"
+                  maxlength="1000"
+                  required
+                  value={itemDescription}
+                  onChange={(e) => setItemDescription(e.target.value)}
+                ></textarea>
+                <p></p>
+                <div className="flex justify-center">
+                  <button type="submit" className="btn mt-2 btn-secondary">
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
           </dialog>
         </div>
       </div>
       <h2 className="text-center m-4 font-bold text-xl">Items:</h2>
-      <div id="viewItems" className="mt-4 justify-center flex flex-wrap gap-5 mb-10">
-
+      <div
+        id="viewItems"
+        className="mt-4 justify-center flex flex-wrap gap-5 mb-10"
+      >
         {items.map((item) => (
           <ItemComponent key={item.id} item={item} onDelete={deleteItem} />
         ))}
-
       </div>
       <h2 className="text-center m-4 font-bold text-xl">Spells:</h2>
 
-      <div className="mt-4 justify-center flex flex-wrap gap-5 mb-10" id="spells">
+      <div
+        className="mt-4 justify-center flex flex-wrap gap-5 mb-10"
+        id="spells"
+      >
         {selectedSpells.map((spell) => (
           <SpellComponent key={spell.id} spell={spell} onDelete={deleteSpell} />
         ))}
+      </div>
+      <div className="flex justify-center">
+        <button className="btn btn-primary my-4" onClick={() => window.my_modal_1.showModal()}>
+          Delete Character
+        </button>
+        <dialog id="my_modal_1" className="modal">
+          <form method="dialog" className="modal-box">
+            <h3 className="font-bold text-lg text-center">Are you Sure you want to delete this character?!</h3>
+            <p className="py-1 text-center">This cannot be reversed.
+            <div className="flex flex-col gap-4 items-center justify-center mt-5">
+              <button
+                className="btn btn-primary  w-52"
+                onClick={() => handleDeleteUserData()}
+              >
+                Delete Character
+              </button>
+              <button className=" w-52 btn">Close</button>
+                          <div className="modal-action">
+
+            </div>
+              </div>
+            </p>
+
+          </form>
+        </dialog>
       </div>
     </div>
   );
