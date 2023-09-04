@@ -65,20 +65,7 @@ function Navbar() {
             {isDarkMode ? getMoonIcon() : getSunIcon()}
           </button>
         </div>
-        <div className="flex md:hidden items-center px-4">
-          <button
-            type="button"
-            className={`inline-flex items-center justify-center p-2 rounded-md text-gray-700  ${
-              isDarkMode
-                ? "dark:text-white dark:hover:bg-slate-600"
-                : "dark:text-black"
-            } focus:outline-none focus:ring-3 focus:ring-inset`}
-            onClick={toggleDarkMode}
-          >
-            <span className="sr-only">Toggle Dark Mode</span>
-            {isDarkMode ? getMoonIcon() : getSunIcon()}
-          </button>
-        </div>
+
         <div className="flex hover:scale-105 ease-in-out duration-75">
           <FaUserAlt size="30" />
 
