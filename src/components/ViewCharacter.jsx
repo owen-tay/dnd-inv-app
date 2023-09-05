@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaCoins, FaUserAlt, FaHeart } from "react-icons/fa";
 import { UserAuth } from "../context/AuthContext";
-import { uploadImage, writeUserData } from "../firebase";
+import { uploadImage } from "../firebase";
 import {
   getStorage,
   ref as storageRef,
@@ -20,7 +20,7 @@ import {
   push,
   set,
 } from "firebase/database";
-import { dbRef, uidCookie } from "../firebase";
+import { dbRef } from "../firebase";
 import ItemComponent from "./ItemComponent";
 import ApiFetch from "./ApiFetch";
 import SpellComponent from "./SpellComponent";
@@ -413,10 +413,22 @@ export default function ViewCharacter() {
             value={currentHp}
             className="range range-secondary  cursor-auto"
           />
-          <p className=" text-lg text-secondary-content">{maxHp}HP</p>
+          <p className=" text-lg ">{maxHp}HP</p>
+        </div>
+        <div className="flex justify-center">
+          {" "}
+          <FaHeart
+            className={` text-secondary absolute mb-9 -z-10  ease-in-out duration-75 ${
+              imageScale ? " scale-110 border-primary " : ""
+            }`}
+            size="55"
+          />
+          <span className=" text-xl text-accent-content mt-2   ">
+            {currentHp}
+          </span>
         </div>
       </div>
-      <div className="flex justify-center gap-2 my-2">
+      <div className="flex justify-center gap-2 mt-9 my-2">
         <button
           className="btn btn-active btn-primary w-16"
           onClick={() => handleHpChange("current", -1)}
@@ -458,7 +470,7 @@ export default function ViewCharacter() {
             <div className="w-20  flex justify-center">
               <input
                 id="strInput"
-                className="w-8"
+                className="w-10"
                 type="number"
                 value={strValue}
                 onChange={(e) => {
@@ -489,7 +501,7 @@ export default function ViewCharacter() {
             <div className="w-20  flex justify-center">
               <input
                 id="dexInput"
-                className="w-8"
+                className="w-10"
                 type="number"
                 value={dexValue}
                 onChange={(e) => {
@@ -520,7 +532,7 @@ export default function ViewCharacter() {
             <div className="w-20  flex justify-center">
               <input
                 id="conInput"
-                className="w-8"
+                className="w-10"
                 type="number"
                 value={conValue}
                 onChange={(e) => {
@@ -551,7 +563,7 @@ export default function ViewCharacter() {
             <div className="w-20  flex justify-center">
               <input
                 id="intInput"
-                className="w-8"
+                className="w-10"
                 type="number"
                 value={intValue}
                 onChange={(e) => {
@@ -582,7 +594,7 @@ export default function ViewCharacter() {
             <div className="w-20  flex justify-center">
               <input
                 id="wisInput"
-                className="w-8"
+                className="w-10"
                 type="number"
                 value={wisValue}
                 onChange={(e) => {
@@ -613,7 +625,7 @@ export default function ViewCharacter() {
             <div className="w-20  flex justify-center">
               <input
                 id="chaInput"
-                className="w-8"
+                className="w-10"
                 type="number"
                 value={chaValue}
                 onChange={(e) => {
@@ -647,7 +659,7 @@ export default function ViewCharacter() {
                 -
               </button>
               <input
-                className="w-8 text-center"
+                className="w-10 text-center"
                 type="number"
                 value={goldValue}
                 onChange={handleInputChange}
@@ -671,7 +683,7 @@ export default function ViewCharacter() {
                 -
               </button>
               <input
-                className="w-8 text-center"
+                className="w-10 text-center"
                 type="number"
                 value={levelValue}
                 onChange={(e) => {
@@ -701,7 +713,7 @@ export default function ViewCharacter() {
                 -
               </button>
               <input
-                className="w-8 text-center"
+                className="w-10 text-center"
                 type="number"
                 value={currentHp}
                 onChange={(e) => handleHpInputChange("current", e)}
@@ -720,7 +732,7 @@ export default function ViewCharacter() {
                 -
               </button>
               <input
-                className="w-8 text-center"
+                className="w-10 text-center"
                 type="number"
                 value={maxHp}
                 onChange={(e) => handleHpInputChange("max", e)}
@@ -835,27 +847,30 @@ export default function ViewCharacter() {
         ))}
       </div>
       <div className="flex justify-center">
-        <button className="btn btn-primary my-4" onClick={() => window.my_modal_1.showModal()}>
+        <button
+          className="btn btn-primary my-4"
+          onClick={() => window.my_modal_1.showModal()}
+        >
           Delete Character
         </button>
         <dialog id="my_modal_1" className="modal">
           <form method="dialog" className="modal-box">
-            <h3 className="font-bold text-lg text-center">Are you Sure you want to delete this character?!</h3>
-            <p className="py-1 text-center">This cannot be reversed.
-            <div className="flex flex-col gap-4 items-center justify-center mt-5">
-              <button
-                className="btn btn-primary  w-52"
-                onClick={() => handleDeleteUserData()}
-              >
-                Delete Character
-              </button>
-              <button className=" w-52 btn">Close</button>
-                          <div className="modal-action">
-
-            </div>
+            <h3 className="font-bold text-lg text-center">
+              Are you Sure you want to delete this character?!
+            </h3>
+            <p className="py-1 text-center">
+              This cannot be reversed.
+              <div className="flex flex-col gap-4 items-center justify-center mt-5">
+                <button
+                  className="btn btn-primary  w-52"
+                  onClick={() => handleDeleteUserData()}
+                >
+                  Delete Character
+                </button>
+                <button className=" w-52 btn">Close</button>
+                <div className="modal-action"></div>
               </div>
             </p>
-
           </form>
         </dialog>
       </div>
