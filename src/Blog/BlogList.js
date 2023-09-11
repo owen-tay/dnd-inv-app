@@ -40,8 +40,8 @@ export const Blog = () => {
     <div className="fadein">
       <div className="">
         <div>
-          <div className="bg-base-200 rounded-xl  lg:m-7">
-          <h1 className="text-4xl font-bold mt-3 text-center">
+          <div className="bg-base-200 rounded-xl ">
+          <h1 className="text-4xl font-bold mt-3 text-center bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
             The DnD Tracker Blog
           </h1>
           <p className="text-lg  mt-3 text-center">
@@ -64,12 +64,12 @@ export const Blog = () => {
                     alt={post.fields.blogTitle}
                   />
                   <div className="p-2">
-                    <h2 className="text-2xl font-bold pt-1">
+                    <h2 className="text-2xl font-bold pt-1 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
                       {post.fields.blogTitle}
                     </h2>
                     <p className="post-meta">
                       By{" "}
-                      <a href="https://owentaylor.dev/" className="post-author">
+                      <a href="https://owentaylor.dev/" className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent ">
                         {post.fields.blogAuthor}
                       </a>{" "}
                       | <span></span>
@@ -88,7 +88,7 @@ export const Blog = () => {
                   <div className="mt-auto">
                     <Link
                       to={`/blogDetails/${post.sys.id}`}
-                      className="btn btn-secondary w-full text-center py-2 mt-2"
+                      className="btn btn-secondary hover:btn-primary  w-full text-center py-2 mt-2"
                     >
                       Read More
                     </Link>

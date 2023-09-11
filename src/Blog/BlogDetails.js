@@ -45,9 +45,11 @@ const BlogDetails = () => {
         <div>
           <div className="flex justify-center">
             <section className=" justify-center m-4 lg:m-10 max-w-4xl">
-              <Link to={"/blog/"} className="text-xl">
+                <div className="mb-5 text-secondary hover:text-primary duration-100 ">
+              <Link to={"/blog/"} className="text-xl ">
                 Back
               </Link>
+              </div>
               <header className="">
                 <div className="flex justify-center">
                   <img
@@ -56,15 +58,15 @@ const BlogDetails = () => {
                     alt={singleBlogPost?.fields?.blogTitle}
                   />
                 </div>
-                <h1 className="text-center text-content font-bold text-3xl mt-3">
+                <h1 className="text-center text-content font-bold text-3xl mt-3 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
                   {singleBlogPost?.fields?.blogTitle}
                 </h1>
-                <div className="text-center">
+                <div className="text-center my-2">
                   <p className="">
                     By{" "}
                     <a
                       href="https://owentaylor.dev/"
-                      className="hover:text-secondary"
+                      className="hover:text-secondary bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent"
                     >
                       {singleBlogPost?.fields?.blogAuthor}
                     </a>{" "}
@@ -86,9 +88,11 @@ const BlogDetails = () => {
               <ReactMarkdown>
                 {singleBlogPost?.fields?.blogContent}
               </ReactMarkdown>
+              <div className="mt-5 text-secondary hover:text-primary duration-100">
               <Link to={"/blog/"} className=" text-center text-xl mt-10">
                 Back
               </Link>
+              </div>
             </section>
           </div>
         </div>
