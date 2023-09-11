@@ -1,28 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { createClient } from "contentful";
 import { Link } from "react-router-dom";
+import { FaDiceD20 } from "react-icons/fa";
 import "../App.css";
 
+
 export const Blog = () => {
-  const [blogPosts, SetBlogPosts] = useState([]);
+  const [blogPosts, SetBlogPosts] = useState(null);
+  const [loading, setLoading] = useState(true); 
   const client = createClient({
     space: process.env.REACT_APP_SPACE_ID,
     accessToken: process.env.REACT_APP_ACCESS_TOKEN,
   });
+
   useEffect(() => {
     const getAllEntries = async () => {
       try {
-        await client.getEntries().then((entries) => {
-          console.log(entries);
-          SetBlogPosts(entries);
-        });
+        setLoading(true); 
+        const entries = await client.getEntries();
+        SetBlogPosts(entries);
+        setLoading(false); 
       } catch (error) {
         console.log("error");
+        setLoading(false); 
       }
     };
     getAllEntries();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="text-2xl flex text-accent-content w-full h-96 justify-center items-center ">
+        <FaDiceD20 size="30" className=" animate-spin" />
+        Loading<span className="loading loading-dots loading-xs mt-6"></span>
+      </div>
+    );
+  }
   return (
     <div className="fadein">
       <div className="">

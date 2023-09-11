@@ -2,31 +2,42 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { createClient } from "contentful";
 import ReactMarkdown from "react-markdown";
+import { FaDiceD20 } from "react-icons/fa";
 import "../App.css";
 
 const BlogDetails = () => {
-  const [singleBlogPost, setSingleBlogPost] = useState([]);
+  const [singleBlogPost, setSingleBlogPost] = useState(null);
+  const [loading, setLoading] = useState(true); 
   const client = createClient({
     space: process.env.REACT_APP_SPACE_ID,
     accessToken: process.env.REACT_APP_ACCESS_TOKEN,
   });
 
   const { id } = useParams();
-  console.log(id);
 
   useEffect(() => {
     const getEntryById = async () => {
       try {
-        await client.getEntry(id).then((entries) => {
-          setSingleBlogPost(entries);
-        });
+        setLoading(true); 
+        const entry = await client.getEntry(id);
+        setSingleBlogPost(entry);
+        setLoading(false); 
       } catch (error) {
-        console.log(`Error fetching authors ${error}`);
+        console.log(`Error fetching blog post: ${error}`);
+        setLoading(false); 
       }
     };
     getEntryById();
   }, [id]);
-  console.log(singleBlogPost);
+
+  if (loading) {
+    return (
+      <div className="text-2xl flex text-accent-content  w-full  h-96 justify-center items-center ">
+        <FaDiceD20 size="30" className=" animate-spin" />
+        Loading<span className="loading loading-dots loading-xs mt-6"></span>
+      </div>
+    );
+  }
 
   return (
     <div className="fadein">
