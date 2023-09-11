@@ -45,7 +45,7 @@ function Navbar() {
   };
 
   return (
-    <div className="flex text-accent-content font-bold justify-between items-center bg-transparent h-12 w-full ">
+    <div className="flex  text-accent-content font-bold justify-between items-center   h-12 w-full ">
       <Link to="/">
         <div className="flex text-xl  sm:text-3xl ml-4 hover:scale-105 ease-in-out duration-75 ">
           <FaDiceD20 size="30" />

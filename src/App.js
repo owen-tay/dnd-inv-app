@@ -8,6 +8,7 @@ import Signin from './pages/Signin';
 import Account from './pages/Account';
 import { AuthContextProvider } from './context/AuthContext';
 import Protected from './components/Protected';
+import { ParallaxProvider } from 'react-scroll-parallax';
 
 
 
@@ -16,7 +17,7 @@ function App() {
   
   return (
     <div className="App">
-      
+      <ParallaxProvider>
       <AuthContextProvider>
       <Navbar/>
       <Routes>
@@ -25,6 +26,7 @@ function App() {
         <Route path='/Account' element={<Protected><Account /></Protected> } />
       </Routes>
       </AuthContextProvider>
+      </ParallaxProvider>
     </div>
   );
 }
