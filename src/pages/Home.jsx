@@ -28,6 +28,9 @@ function Home() {
               <Link to="/account">
                 <button className="btn btn-primary w-40">View Dashboard</button>
               </Link>
+              <Link to="/Blog">
+                <button className="btn btn-primary w-40">View Our Blog</button>
+              </Link>
             </div>
           </div>
         </div>

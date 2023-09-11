@@ -423,7 +423,7 @@ export default function ViewCharacter() {
             }`}
             size="55"
           />
-          <span className=" text-xl text-accent-content mt-2   ">
+          <span className=" text-xl  mt-2   ">
             {currentHp}
           </span>
         </div>
@@ -704,7 +704,7 @@ export default function ViewCharacter() {
             </div>
 
             {/* Current HP input field */}
-            <div className=" w-48 h-36">
+            <div className=" w-52 h-36">
               <p className="  text-lg text-accent-content">HP/MaxHP</p>
               <button
                 className=" text-2xl m-2"
