@@ -32,7 +32,7 @@ const BlogDetails = () => {
 
   if (loading) {
     return (
-      <div className="text-2xl flex text-accent-content  w-full  h-96 justify-center items-center ">
+      <div className="text-2xl flex text-base-content  w-full  h-96 justify-center items-center ">
         <FaDiceD20 size="30" className=" animate-spin" />
         Loading<span className="loading loading-dots loading-xs mt-6"></span>
       </div>

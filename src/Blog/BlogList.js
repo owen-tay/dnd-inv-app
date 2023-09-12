@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { createClient } from "contentful";
 import { Link } from "react-router-dom";
 import { FaDiceD20 } from "react-icons/fa";
+import { scroller } from "react-scroll";
+
 import "../App.css";
 
 
@@ -30,7 +32,7 @@ export const Blog = () => {
 
   if (loading) {
     return (
-      <div className="text-2xl flex text-accent-content w-full h-96 justify-center items-center ">
+      <div className="text-2xl flex text-base-content w-full h-96 justify-center items-center ">
         <FaDiceD20 size="30" className=" animate-spin" />
         Loading<span className="loading loading-dots loading-xs mt-6"></span>
       </div>
@@ -38,9 +40,9 @@ export const Blog = () => {
   }
   return (
     <div className="fadein">
-      <div className="">
+      <div className="mx-2 lg:mx-12">
         <div>
-          <div className="bg-base-200 rounded-xl ">
+          <div className="bg-base-200 rounded-xl mx-2 lg:mx-7 ">
           <h1 className="text-4xl font-bold mt-3 text-center bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
             The DnD Tracker Blog
           </h1>
@@ -51,10 +53,10 @@ export const Blog = () => {
           </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 mt-10 justify-center items-start h-full gap-y-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 mt-10 justify-center items-start h-full gap-y-14">
             {blogPosts?.items?.map((post) => (
               <section
-                className="flex flex-col h-full max-w-lg mx-auto bg-base-200 shadow-md rounded-md overflow-hidden"
+                className="flex flex-col h-full sm:max-w-md lg:max-w-lg mx-auto bg-base-200 shadow-md rounded-md overflow-hidden"
                 key={post.sys.id}
               >
                 <header className="post-header">

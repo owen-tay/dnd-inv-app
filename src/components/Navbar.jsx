@@ -22,17 +22,17 @@ function Navbar() {
   //changes darkmode icon n that
   const getMoonIcon = () => {
     if (isDarkMode) {
-      return <FaSun size="20" className=" text-accent-content" />;
+      return <FaSun size="20" className=" text-base-content" />;
     } else {
-      return <FaSun size="20"  className=" text-accent-content" />;
+      return <FaSun size="20"  className=" text-base-content" />;
     }
   };
 
   const getSunIcon = () => {
     if (isDarkMode) {
-      return <FaMoon size="20"  className=" text-accent-content"/>;
+      return <FaMoon size="20"  className=" text-base-content"/>;
     } else {
-      return <FaMoon size="20" className=" text-accent-content" />;
+      return <FaMoon size="20" className=" text-base-content" />;
     }
   };
 
@@ -45,7 +45,7 @@ function Navbar() {
   };
 
   return (
-    <div className="flex  text-accent-content font-bold justify-between items-center   h-12 w-full ">
+    <div className="flex  text-base-content font-bold justify-between items-center   h-12 w-full ">
       <Link to="/">
         <div className="flex text-xl  sm:text-3xl ml-4 hover:scale-105 ease-in-out duration-75 ">
           <FaDiceD20 size="30" />
