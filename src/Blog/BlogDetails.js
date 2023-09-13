@@ -53,7 +53,7 @@ const BlogDetails = () => {
               <header className="">
                 <div className="flex justify-center">
                   <img
-                    className=" h-96 w-full object-cover rounded-xl border-2"
+                    className="  h-52 sm:h-96 w-full object-cover rounded-xl border-2"
                     src={singleBlogPost?.fields?.blogImage?.fields?.file?.url}
                     alt={singleBlogPost?.fields?.blogTitle}
                   />

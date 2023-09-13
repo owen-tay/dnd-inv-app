@@ -53,10 +53,9 @@ function Home() {
       },
     },
   });
-
   return (
     <div>
-      <div className="bghero h-screen -mt-12">
+      <div className="bghero h-screen -mt-12 ">
         <div className="hero min-h-screen">
           <div className="hero-content mt-20 text-center">
             <ScrollContainer className="h-screen  flex items-center absolute z-0  justify-center">
@@ -65,8 +64,8 @@ function Home() {
                   <svg
                     className="stroke-base-content mt-10"
                     xmlns="http://www.w3.org/2000/svg"
-                    width="435"
-                    height="435"
+                    width="420"
+                    height="420"
                     fill="none"
                   >
                     <g
@@ -211,7 +210,7 @@ function Home() {
               <h2 className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
                 With This App you can Track:
               </h2>
-              <ul class="list-disc">
+              <ul class="list-disc just">
                 <li>Levels</li>
                 <li>Gold</li>
                 <li>Stats</li>

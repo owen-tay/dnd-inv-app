@@ -219,7 +219,7 @@ export default function ViewCharacter() {
     const file = e.target.files[0];
 
     if (file) {
-      // File Type and Size Checks as above...
+      // File Type and Size Checks as above
 
       const db = getDatabase();
       const userRef = ref(db, "users/" + user.uid);
@@ -423,7 +423,7 @@ export default function ViewCharacter() {
             }`}
             size="55"
           />
-          <span className=" text-xl  mt-2   ">
+          <span className=" text-xl text-white  mt-2   ">
             {currentHp}
           </span>
         </div>
