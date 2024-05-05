@@ -6,9 +6,8 @@ import { scroller } from "react-scroll";
 
 import "../App.css";
 
-
 export const Blog = () => {
-  const [blogPosts, SetBlogPosts] = useState(null);
+  const [blogPosts, setBlogPosts] = useState(null);
   const [loading, setLoading] = useState(true); 
   const client = createClient({
     space: process.env.REACT_APP_SPACE_ID,
@@ -19,8 +18,10 @@ export const Blog = () => {
     const getAllEntries = async () => {
       try {
         setLoading(true); 
-        const entries = await client.getEntries();
-        SetBlogPosts(entries);
+        const entries = await client.getEntries({
+          content_type: "dndBlog" // Filter entries by content type
+        });
+        setBlogPosts(entries);
         setLoading(false); 
       } catch (error) {
         console.log("error");
