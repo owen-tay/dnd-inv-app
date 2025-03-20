@@ -8,7 +8,7 @@ import "../App.css";
 
 export const Blog = () => {
   const [blogPosts, setBlogPosts] = useState(null);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const client = createClient({
     space: process.env.REACT_APP_SPACE_ID,
     accessToken: process.env.REACT_APP_ACCESS_TOKEN,
@@ -17,15 +17,15 @@ export const Blog = () => {
   useEffect(() => {
     const getAllEntries = async () => {
       try {
-        setLoading(true); 
+        setLoading(true);
         const entries = await client.getEntries({
-          content_type: "dndBlog" // Filter entries by content type
+          content_type: "dndBlog", // Filter entries by content type
         });
         setBlogPosts(entries);
-        setLoading(false); 
+        setLoading(false);
       } catch (error) {
         console.log("error");
-        setLoading(false); 
+        setLoading(false);
       }
     };
     getAllEntries();
@@ -33,74 +33,97 @@ export const Blog = () => {
 
   if (loading) {
     return (
-      <div className="text-2xl flex text-base-content w-full h-96 justify-center items-center ">
-        <FaDiceD20 size="30" className=" animate-spin" />
-        Loading<span className="loading loading-dots loading-xs mt-6"></span>
+      <div className="flex flex-col items-center justify-center w-full min-h-screen">
+        <div className="bg-base-200 p-8 rounded-xl shadow-xl flex flex-col items-center">
+          <FaDiceD20 size="60" className="text-secondary animate-spin mb-4" />
+          <div className="flex items-center text-2xl font-medium">
+            Loading<span className="loading loading-dots loading-md ml-2"></span>
+          </div>
+        </div>
       </div>
     );
   }
+
   return (
-    <div className="fadein">
-      <div className="mx-2 lg:mx-12">
-        <div>
-          <div className="bg-base-200 rounded-xl mx-2 lg:mx-7 ">
-          <h1 className="text-4xl font-bold mt-3 text-center bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+    <div className="fadein overflow-hidden pt-8 pb-16">
+      <div className="container mx-auto px-4">
+        {/* Blog Header */}
+        <div className="bg-base-200 rounded-xl p-8 mb-12 shadow-xl border-t-4 border-secondary">
+          <h1 className="text-4xl sm:text-5xl font-bold text-center bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent mb-6">
             The DnD Tracker Blog
           </h1>
-          <p className="text-lg  mt-3 text-center">
+          <div className="w-24 h-1 bg-gradient-to-r from-secondary to-primary mx-auto rounded-full mb-6"></div>
+          <p className="text-lg sm:text-xl text-center max-w-3xl mx-auto leading-relaxed">
             Embark on a journey through the multifaceted realms of Dungeons &
             Dragons and other table-top role-playing games on our blog, where
             imagination meets reality.
           </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 mt-10 justify-center items-start h-full gap-y-14">
-            {blogPosts?.items?.map((post) => (
-              <section
-                className="flex flex-col h-full sm:max-w-md lg:max-w-lg mx-auto bg-base-200 shadow-md rounded-md overflow-hidden"
-                key={post.sys.id}
-              >
-                <header className="post-header">
-                  <img
-                    className=" h-72 w-full object-cover"
-                    src={post.fields.blogImage.fields.file.url}
-                    alt={post.fields.blogTitle}
-                  />
-                  <div className="p-2">
-                    <h2 className="text-2xl font-bold pt-1 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-                      {post.fields.blogTitle}
-                    </h2>
-                    <p className="post-meta">
-                      By{" "}
-                      <a href="https://owentaylor.dev/" className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent ">
-                        {post.fields.blogAuthor}
-                      </a>{" "}
-                      | <span></span>
-                      <small>
-                        {new Intl.DateTimeFormat("en-GB", {
-                          month: "long",
-                          day: "2-digit",
-                          year: "numeric",
-                        }).format(new Date(post.fields.createDate))}
-                      </small>
-                    </p>
-                  </div>
-                </header>
-                <div className="post-description flex flex-col flex-grow p-2">
-                  <p className="flex-grow">{post.fields.blogSummary}</p>
-                  <div className="mt-auto">
-                    <Link
-                      to={`/blogDetails/${post.sys.id}`}
-                      className="btn btn-secondary hover:btn-primary  w-full text-center py-2 mt-2"
-                    >
-                      Read More
-                    </Link>
-                  </div>
-                </div>
-              </section>
-            ))}
-          </div>
         </div>
+
+        {/* Blog Posts Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-10">
+          {blogPosts?.items?.map((post) => (
+            <article
+              className="flex flex-col h-full bg-base-200 shadow-xl rounded-xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl border-t-4 border-secondary"
+              key={post.sys.id}
+            >
+              {/* Post Header/Image */}
+              <header className="relative">
+                <img
+                  className="h-64 w-full object-cover"
+                  src={post.fields.blogImage.fields.file.url}
+                  alt={post.fields.blogTitle}
+                />
+                {/* Date Badge */}
+                <div className="absolute top-4 right-4 bg-base-100 bg-opacity-90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-md text-sm font-medium">
+                  {new Intl.DateTimeFormat("en-GB", {
+                    month: "long",
+                    day: "2-digit",
+                    year: "numeric",
+                  }).format(new Date(post.fields.createDate))}
+                </div>
+              </header>
+
+              {/* Post Content */}
+              <div className="p-6 flex flex-col flex-grow">
+                <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+                  {post.fields.blogTitle}
+                </h2>
+                
+                <p className="text-sm mb-4">
+                  By{" "}
+                  <a 
+                    href="https://owentaylor.dev/" 
+                    className="font-medium bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent hover:underline"
+                  >
+                    {post.fields.blogAuthor}
+                  </a>
+                </p>
+                
+                <p className="flex-grow leading-relaxed mb-6">
+                  {post.fields.blogSummary}
+                </p>
+                
+                <div className="mt-auto">
+                  <Link
+                    to={`/blogDetails/${post.sys.id}`}
+                    className="btn btn-secondary w-full text-center py-3 transition-all hover:btn-primary hover:shadow-lg"
+                  >
+                    Read More
+                  </Link>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* If no posts */}
+        {(!blogPosts?.items || blogPosts.items.length === 0) && (
+          <div className="text-center p-12 bg-base-200 rounded-xl shadow-md">
+            <h3 className="text-xl font-medium">No blog posts found</h3>
+            <p className="mt-2">Check back soon for new content!</p>
+          </div>
+        )}
       </div>
     </div>
   );

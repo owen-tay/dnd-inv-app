@@ -47,13 +47,13 @@ function Navbar() {
   return (
     <div className="flex  text-base-content font-bold justify-between items-center   h-12 w-full ">
       <Link to="/">
-        <div className="flex text-xl  sm:text-3xl ml-4 hover:scale-105 ease-in-out duration-75 ">
+        <div className="flex text-lg  sm:text-3xl ml-4 hover:scale-105 ease-in-out duration-75 ">
           <FaDiceD20 size="30" />
           DND Tracker
         </div>
       </Link>
 
-      <div className="mr-3 flex gap-1  text-xl  sm:text-3xl font-bold">
+      <div className="mr-3 flex gap-1   text-lg   sm:text-3xl font-bold">
         <div className="flex hover:scale-105 ease-in-out duration-75 mr-4">
           <button
             type="button"
@@ -66,8 +66,8 @@ function Navbar() {
           </button>
         </div>
 
-        <div className="flex hover:scale-105 ease-in-out duration-75">
-          <FaUserAlt size="30" />
+        <div className="flex hover:scale-105 ease-in-out duration-75 items-center gap-1">
+          <FaUserAlt size="20" />
 
           {user?.displayName ? (
             <button onClick={handleSignOut}>Logout</button>
