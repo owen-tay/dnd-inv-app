@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaCoins, FaUserAlt, FaHeart } from "react-icons/fa";
-import { UserAuth } from "../context/AuthContext";
+import { FiShare2 } from "react-icons/fi";import { UserAuth } from "../context/AuthContext";
 import { uploadImage } from "../firebase";
 import {
   getStorage,
@@ -19,14 +19,24 @@ import {
   off,
   push,
   set,
+  remove,
+  query,
+  orderByValue,
+  equalTo,
+  get as dbGet,
+
 } from "firebase/database";
 import { dbRef } from "../firebase";
 import ItemComponent from "./ItemComponent";
 import ApiFetch from "./ApiFetch";
 import SpellComponent from "./SpellComponent";
+import { v4 as uuidv4 } from "uuid";
+import copyToClipboard from "../utils/copyToClipboard";
 
-export default function ViewCharacter() {
-  const { user } = UserAuth();
+export default function ViewCharacter(props = {}) {
+  const authCtx = UserAuth();                 // undefined on public page
+  const user = props.user ?? authCtx?.user;   // use passed‑in user or logged‑in one
+  const readOnly = props.readOnly ?? false;
   console.log(user.uid);
   const [characterName, setCharacterName] = useState("");
   const [goldValue, setGoldValue] = useState(0);
@@ -56,7 +66,6 @@ export default function ViewCharacter() {
   };
 
   //stats usestates
-
   const [strValue, setStrValue] = useState(1);
   const [dexValue, setDexValue] = useState(1);
   const [conValue, setConValue] = useState(1);
@@ -69,9 +78,16 @@ export default function ViewCharacter() {
 
   const [selectedSpellInfo, setSelectedSpellInfo] = useState(null);
 
+
+
+
+
   const handleAddSpell = (selectedSpellInfo) => {
-    if (selectedSpellInfo) {
+    if (selectedSpellInfo && !readOnly) {
       const db = getDatabase();
+
+
+
       const userSpellsRef = ref(db, `users/${user.uid}/spells`);
 
       // Push the selected spell's information to the users db collection
@@ -84,8 +100,12 @@ export default function ViewCharacter() {
     }
   };
 
-  //ablity score table function. this thing is massive
+  const lockable = (handler) =>
+    readOnly
+      ? { disabled: true, readOnly: true }        // shows value, no edits
+      : { onChange: handler };                    // normal editable field
 
+  //ablity score table function. this thing is massive
   const calculateBonus = (statValue) => {
     if (statValue <= 1) {
       return -5;
@@ -122,7 +142,42 @@ export default function ViewCharacter() {
     }
   };
 
+  const [shareToken, setShareToken] = useState(null);
+  const [shareUrl, setShareUrl]     = useState("");   // holds final URL
+const [showShareModal, setShowShareModal] = useState(false);
+
+  const handleShare = async () => {
+    if (!user?.uid || readOnly) return;
+
+    const db = getDatabase();
+
+    if (!shareToken) {
+      const token = uuidv4();
+
+      await set(ref(db, `shareTokens/${token}`), user.uid);
+      await set(ref(db, `publicUsers/${user.uid}`), true);
+      await update(ref(db, `users/${user.uid}`), { shareToken: token });
+      setShareToken(token);
+
+      const url = `${window.location.origin}/share/${token}`;
+      setShareUrl(url);
+      setShowShareModal(true);
+      copyToClipboard(url); 
+    }
+    else {
+      await remove(ref(db, `shareTokens/${shareToken}`));
+      await remove(ref(db, `publicUsers/${user.uid}`));
+      await update(ref(db, `users/${user.uid}`), { shareToken: null });
+      setShareToken(null);
+      setShareUrl("");
+      setShowShareModal(false);
+      alert("Sharing disabled.");
+    }
+  };
+
   const handleDeleteUserData = async () => {
+    if (readOnly) return;
+    
     const db = getDatabase();
     const userRef = ref(db, `users/${user.uid}`);
 
@@ -141,6 +196,8 @@ export default function ViewCharacter() {
     resetState();
   };
 
+
+
   useEffect(() => {
     // Reset state every time the user changes.
     resetState();
@@ -148,6 +205,10 @@ export default function ViewCharacter() {
     if (!user) {
       return; // If no user
     }
+
+    get(ref(getDatabase(), `users/${user.uid}/shareToken`)).then((snap) => {
+      if (snap.exists() && snap.val()) setShareToken(snap.val());
+    });
 
     const handleValueChange = (snapshot) => {
       const data = snapshot.val();
@@ -214,8 +275,9 @@ export default function ViewCharacter() {
   }, [user]);
 
   //image handler
-
   const handleImageUpload = async (e) => {
+    if (readOnly) return;
+    
     const file = e.target.files[0];
 
     if (file) {
@@ -249,6 +311,8 @@ export default function ViewCharacter() {
   };
 
   const handleItemSubmit = () => {
+    if (readOnly) return;
+    
     const db = getDatabase();
     const itemsRef = ref(db, "users/" + user.uid + "/items");
     const newItemRef = push(itemsRef);
@@ -262,6 +326,8 @@ export default function ViewCharacter() {
   };
 
   const deleteItem = (itemId) => {
+    if (readOnly) return;
+    
     const itemRef = ref(
       getDatabase(),
       "users/" + user.uid + "/items/" + itemId
@@ -271,29 +337,39 @@ export default function ViewCharacter() {
   };
 
   const deleteSpell = (spellId) => {
+    if (readOnly) return;
+    
     const spellRef = ref(getDatabase(), `users/${user.uid}/spells/${spellId}`);
     set(spellRef, null);
   };
 
   const handleGoldChange = (delta) => {
+    if (readOnly) return;
+    
     const newValue = goldValue + delta;
     setGoldValue(newValue);
     writeUserData2(newValue, levelValue, currentHp, maxHp);
   };
 
   const handleInputChange = (e) => {
+    if (readOnly) return;
+    
     const newValue = parseInt(e.target.value, 10) || 0;
     setGoldValue(newValue);
     writeUserData2(newValue, levelValue, currentHp, maxHp);
   };
 
   const handleLevelChange = (delta) => {
+    if (readOnly) return;
+    
     const newValue = levelValue + delta;
     setLevelValue(newValue);
     writeUserData2(goldValue, newValue, currentHp, maxHp);
   };
 
   const handleHpChange = (type, delta) => {
+    if (readOnly) return;
+    
     const newValue = type === "current" ? currentHp + delta : currentHp;
     setCurrentHp(newValue);
     writeUserData2(goldValue, levelValue, newValue, maxHp);
@@ -318,6 +394,8 @@ export default function ViewCharacter() {
   };
 
   const handleHpInputChange = (type, e) => {
+    if (readOnly) return;
+    
     const newValue = parseInt(e.target.value, 10) || 0;
     if (type === "current") {
       setCurrentHp(newValue);
@@ -340,6 +418,8 @@ export default function ViewCharacter() {
     wis,
     cha
   ) {
+    if (readOnly) return;
+    
     const db = getDatabase();
     const reference = ref(db, "users/" + user.uid);
 
@@ -360,17 +440,46 @@ export default function ViewCharacter() {
     update(reference, updateObject);
   }
 
+  useEffect(() => {
+    if (characterName) {
+      document.title = readOnly
+        ? `${characterName} · read‑only`
+        : `${characterName} · Dashboard`;
+    }
+  }, [characterName, readOnly]);
+
   const toggleVisibility = () => {
     const hideshowDiv = document.getElementById("showHide");
     hideshowDiv.classList.toggle("hidden");
+
+
+
   };
 
   return (
     <div className="mt-2">
-      <h1 className=" text-center text-3xl font-bold text-base-content">
-        {" "}
+      {readOnly && (
+        <p className="text-center text-md mb-4 text-secondary animate-pulse">
+          Live&nbsp;view &bull; editing disabled
+        </p>
+      )}
+
+      <h1 className="text-center text-4xl font-bold my-4 text-base-content">
         {characterName}
       </h1>
+      <div className="w-full justify-center flex">
+      {!readOnly && (
+  <button
+    className={`btn my-4 mr-2 flex items-center gap-2 ${
+      shareToken ? "btn-primary" : "btn-secondary"
+    }`}
+    onClick={handleShare}
+  >
+    <FiShare2 size={18} />
+    {shareToken ? "Stop Sharing" : "Share"}
+  </button>
+)}
+</div>
       <div className="flex justify-center">
         <img
           src={imageURL}
@@ -379,6 +488,7 @@ export default function ViewCharacter() {
             imageScale ? " scale-110 border-primary " : ""
           }`}
         />
+        
       </div>
 
       <div className="flex w-screen justify-center">
@@ -391,9 +501,10 @@ export default function ViewCharacter() {
               <input
                 type="file"
                 className="file-input file-input-bordered w-full max-w-xs"
-                onChange={handleImageUpload}
+                {...lockable(handleImageUpload)}
+                disabled={readOnly}
               />
-              <button className="btn btn-secondary">Submit</button>
+              <button className="btn btn-secondary" disabled={readOnly}>Submit</button>
             </div>
           </form>
 
@@ -403,27 +514,27 @@ export default function ViewCharacter() {
         </dialog>
       </div>
 
-      <div className=" mx-8 sm:mx-48">
-        <div className="flex justify-center ">
-          <p className=" text-lg text-base-content">0HP</p>
+      <div className="mx-8 sm:mx-48">
+        <div className="flex justify-center">
+          <p className="text-lg text-base-content">0HP</p>
           <input
             type="range"
             min={0}
             max={maxHp}
             value={currentHp}
-            className="range range-secondary  cursor-auto"
+            className="range range-secondary cursor-auto"
+            disabled={readOnly}
           />
-          <p className=" text-lg ">{maxHp}HP</p>
+          <p className="text-lg">{maxHp}HP</p>
         </div>
         <div className="flex justify-center">
-          {" "}
           <FaHeart
-            className={` text-secondary absolute mb-9 -z-10  ease-in-out duration-75 ${
+            className={`text-secondary absolute mb-9 -z-10 ease-in-out duration-75 ${
               imageScale ? " scale-110 border-primary " : ""
             }`}
             size="55"
           />
-          <span className=" text-xl text-white  mt-2   ">
+          <span className="text-xl text-white mt-2">
             {currentHp}
           </span>
         </div>
@@ -432,25 +543,27 @@ export default function ViewCharacter() {
         <button
           className="btn btn-active btn-primary w-16"
           onClick={() => handleHpChange("current", -1)}
+          disabled={readOnly}
         >
           1 Damage
         </button>
         <button
           className="btn btn-active btn-secondary w-16"
           onClick={() => handleHpChange("current", 1)}
+          disabled={readOnly}
         >
           1 Heal
         </button>
       </div>
 
-      <div className="flex  justify-center">
+      <div className="flex justify-center">
         <div className="form-control">
           <label className="cursor-pointer label">
             <input
               id="hideshowcheck"
               type="checkbox"
               className="toggle toggle-secondary"
-              onChange={toggleVisibility} // Toggle visibility on checkbox change
+              {...lockable(toggleVisibility)}
             />
           </label>
         </div>
@@ -461,19 +574,19 @@ export default function ViewCharacter() {
       </div>
       <div id="showHide" className=" ">
         <div className="flex flex-wrap justify-center gap-1">
-          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
-            <p className=" text-xs">STR</p>
-            <p id="strBonus" className=" text-md">
+          <div className="flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className="text-xs">STR</p>
+            <p id="strBonus" className="text-md">
               {calculateBonus(strValue)}
             </p>
 
-            <div className="w-20  flex justify-center">
+            <div className="w-20 flex justify-center">
               <input
                 id="strInput"
                 className="w-10"
                 type="number"
                 value={strValue}
-                onChange={(e) => {
+                {...lockable((e) => {
                   const newValue = parseInt(e.target.value, 10) || 0;
                   setStrValue(newValue);
                   writeUserData2(
@@ -488,23 +601,23 @@ export default function ViewCharacter() {
                     wisValue,
                     chaValue
                   );
-                }}
-              />{" "}
+                })}
+              />
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
-            <p className=" text-xs">DEX</p>
-            <p id="dexBonus" className=" text-md">
+          <div className="flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className="text-xs">DEX</p>
+            <p id="dexBonus" className="text-md">
               {calculateBonus(dexValue)}
             </p>
 
-            <div className="w-20  flex justify-center">
+            <div className="w-20 flex justify-center">
               <input
                 id="dexInput"
                 className="w-10"
                 type="number"
                 value={dexValue}
-                onChange={(e) => {
+                {...lockable((e) => {
                   const newValue = parseInt(e.target.value, 10) || 0;
                   setDexValue(newValue);
                   writeUserData2(
@@ -519,23 +632,23 @@ export default function ViewCharacter() {
                     wisValue,
                     chaValue
                   );
-                }}
-              />{" "}
+                })}
+              />
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
-            <p className=" text-xs">CON</p>
-            <p id="conBonus" className=" text-md">
+          <div className="flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className="text-xs">CON</p>
+            <p id="conBonus" className="text-md">
               {calculateBonus(conValue)}
             </p>
 
-            <div className="w-20  flex justify-center">
+            <div className="w-20 flex justify-center">
               <input
                 id="conInput"
                 className="w-10"
                 type="number"
                 value={conValue}
-                onChange={(e) => {
+                {...lockable((e) => {
                   const newValue = parseInt(e.target.value, 10) || 0;
                   setConValue(newValue);
                   writeUserData2(
@@ -550,23 +663,23 @@ export default function ViewCharacter() {
                     wisValue,
                     chaValue
                   );
-                }}
-              />{" "}
+                })}
+              />
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
-            <p className=" text-xs">INT</p>
-            <p id="intBonus" className=" text-md">
+          <div className="flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className="text-xs">INT</p>
+            <p id="intBonus" className="text-md">
               {calculateBonus(intValue)}
             </p>
 
-            <div className="w-20  flex justify-center">
+            <div className="w-20 flex justify-center">
               <input
                 id="intInput"
                 className="w-10"
                 type="number"
                 value={intValue}
-                onChange={(e) => {
+                {...lockable((e) => {
                   const newValue = parseInt(e.target.value, 10) || 0;
                   setIntValue(newValue);
                   writeUserData2(
@@ -581,23 +694,23 @@ export default function ViewCharacter() {
                     wisValue,
                     chaValue
                   );
-                }}
-              />{" "}
+                })}
+              />
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
-            <p className=" text-xs">WIS</p>
-            <p id="wisBonus" className=" text-md">
+          <div className="flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className="text-xs">WIS</p>
+            <p id="wisBonus" className="text-md">
               {calculateBonus(wisValue)}
             </p>
 
-            <div className="w-20  flex justify-center">
+            <div className="w-20 flex justify-center">
               <input
                 id="wisInput"
                 className="w-10"
                 type="number"
                 value={wisValue}
-                onChange={(e) => {
+                {...lockable((e) => {
                   const newValue = parseInt(e.target.value, 10) || 0;
                   setWisValue(newValue);
                   writeUserData2(
@@ -612,23 +725,23 @@ export default function ViewCharacter() {
                     newValue,
                     chaValue
                   );
-                }}
-              />{" "}
+                })}
+              />
             </div>
           </div>
-          <div className=" flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
-            <p className=" text-xs">CHA</p>
-            <p id="wisBonus" className=" text-md">
+          <div className="flex flex-col bg-base-200 w-20 h-20 items-center justify-center rounded-lg">
+            <p className="text-xs">CHA</p>
+            <p id="chaBonus" className="text-md">
               {calculateBonus(chaValue)}
             </p>
 
-            <div className="w-20  flex justify-center">
+            <div className="w-20 flex justify-center">
               <input
                 id="chaInput"
                 className="w-10"
                 type="number"
                 value={chaValue}
-                onChange={(e) => {
+                {...lockable((e) => {
                   const newValue = parseInt(e.target.value, 10) || 0;
                   setChaValue(newValue);
                   writeUserData2(
@@ -643,18 +756,19 @@ export default function ViewCharacter() {
                     wisValue,
                     newValue
                   );
-                }}
-              />{" "}
+                })}
+              />
             </div>
           </div>
         </div>
         <div className="mt-4 text-center">
           <div className="flex flex-wrap justify-center gap-4">
-            <div className="  w-36 h-36">
-              <p className=" text-lg text-base-content">Gold</p>
+            <div className="w-36 h-36">
+              <p className="text-lg text-base-content">Gold</p>
               <button
-                className=" text-2xl m-2"
+                className="text-2xl m-2"
                 onClick={() => handleGoldChange(-1)}
+                disabled={readOnly}
               >
                 -
               </button>
@@ -662,23 +776,25 @@ export default function ViewCharacter() {
                 className="w-10 text-center"
                 type="number"
                 value={goldValue}
-                onChange={handleInputChange}
+                {...lockable(handleInputChange)}
               />
               <button
-                className=" text-2xl m-2"
+                className="text-2xl m-2"
                 onClick={() => handleGoldChange(1)}
+                disabled={readOnly}
               >
                 +
               </button>
-              <div className="flex justify-center items-center  text-secondary">
+              <div className="flex justify-center items-center text-secondary">
                 <FaCoins size="50" />
               </div>
             </div>
-            <div className="  w-36 h-36">
-              <p className=" text-lg text-base-content">Level</p>
+            <div className="w-36 h-36">
+              <p className="text-lg text-base-content">Level</p>
               <button
-                className=" text-2xl m-2"
+                className="text-2xl m-2"
                 onClick={() => handleLevelChange(-1)}
+                disabled={readOnly}
               >
                 -
               </button>
@@ -686,29 +802,31 @@ export default function ViewCharacter() {
                 className="w-10 text-center"
                 type="number"
                 value={levelValue}
-                onChange={(e) => {
+                {...lockable((e) => {
                   const newValue = parseInt(e.target.value, 10) || 0;
                   setLevelValue(newValue);
                   writeUserData2(goldValue, newValue, currentHp, maxHp);
-                }}
+                })}
               />
               <button
-                className=" text-2xl m-2"
+                className="text-2xl m-2"
                 onClick={() => handleLevelChange(1)}
+                disabled={readOnly}
               >
                 +
               </button>
-              <div className="flex justify-center items-center  text-secondary">
+              <div className="flex justify-center items-center text-secondary">
                 <FaUserAlt size="50" />
               </div>
             </div>
 
             {/* Current HP input field */}
-            <div className=" w-52 h-36">
-              <p className="  text-lg text-base-content">HP/MaxHP</p>
+            <div className="w-52 h-36">
+              <p className="text-lg text-base-content">HP/MaxHP</p>
               <button
-                className=" text-2xl m-2"
+                className="text-2xl m-2"
                 onClick={() => handleHpChange("current", -1)}
+                disabled={readOnly}
               >
                 -
               </button>
@@ -716,18 +834,20 @@ export default function ViewCharacter() {
                 className="w-10 text-center"
                 type="number"
                 value={currentHp}
-                onChange={(e) => handleHpInputChange("current", e)}
+                {...lockable((e) => handleHpInputChange("current", e))}
               />
               <button
-                className=" text-2xl m-2"
+                className="text-2xl m-2"
                 onClick={() => handleHpChange("current", 1)}
+                disabled={readOnly}
               >
                 +
               </button>
-              <span className=" text-2xl">/</span>
+              <span className="text-2xl">/</span>
               <button
-                className=" text-2xl m-2"
+                className="text-2xl m-2"
                 onClick={() => handleHpChange("max", -1)}
+                disabled={readOnly}
               >
                 -
               </button>
@@ -735,15 +855,16 @@ export default function ViewCharacter() {
                 className="w-10 text-center"
                 type="number"
                 value={maxHp}
-                onChange={(e) => handleHpInputChange("max", e)}
+                {...lockable((e) => handleHpInputChange("max", e))}
               />
               <button
-                className=" text-2xl m-2"
+                className="text-2xl m-2"
                 onClick={() => handleHpChange("max", 1)}
+                disabled={readOnly}
               >
                 +
               </button>
-              <div className="flex justify-center  text-secondary items-center">
+              <div className="flex justify-center text-secondary items-center">
                 <FaHeart size="50" />
               </div>
             </div>
@@ -751,20 +872,26 @@ export default function ViewCharacter() {
         </div>
         <div className="mt-4 justify-center flex gap-2" id="items">
           <button
-            className="btn btn-secondary "
+            className="btn btn-secondary"
             onClick={() => window.my_modal_3.showModal()}
+            disabled={readOnly}
           >
             Add Item
           </button>
           <button
             className="btn btn-secondary"
             onClick={() => window.my_modal_2.showModal()}
+            disabled={readOnly}
           >
             Add Image
           </button>
-          <ApiFetch user={user} handleAddSpellProp={handleAddSpell} />
+          <ApiFetch 
+            user={user} 
+            handleAddSpellProp={handleAddSpell} 
+            disabled={readOnly}
+          />
           <dialog id="my_modal_3" className="modal">
-            <div className=" w-fit sm:w-96">
+            <div className="w-fit sm:w-96">
               <form
                 method="dialog"
                 className="modal-box"
@@ -777,7 +904,7 @@ export default function ViewCharacter() {
                   type="button"
                   className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
                   onClick={() => {
-                    window.my_modal_3.close(); //this shouldd Close the modal on click
+                    window.my_modal_3.close(); //this should close the modal on click
                   }}
                 >
                   ✕
@@ -788,7 +915,7 @@ export default function ViewCharacter() {
                   className="select select-bordered w-full max-w-xs"
                   required
                   value={itemType}
-                  onChange={(e) => setItemType(e.target.value)}
+                  {...lockable((e) => setItemType(e.target.value))}
                 >
                   <option value="" disabled>
                     Pick an item type
@@ -805,20 +932,20 @@ export default function ViewCharacter() {
                   placeholder="Type here"
                   className="input input-bordered w-full max-w-xs"
                   value={itemName}
-                  onChange={(e) => setItemName(e.target.value)}
+                  {...lockable((e) => setItemName(e.target.value))}
                 />
                 <p className="py-4">Item Description</p>
                 <textarea
-                  className="textarea textarea-bordered  w-full max-w-xs"
+                  className="textarea textarea-bordered w-full max-w-xs"
                   placeholder="Bio"
-                  maxlength="1000"
+                  maxLength="1000"
                   required
                   value={itemDescription}
-                  onChange={(e) => setItemDescription(e.target.value)}
+                  {...lockable((e) => setItemDescription(e.target.value))}
                 ></textarea>
                 <p></p>
                 <div className="flex justify-center">
-                  <button type="submit" className="btn mt-2 btn-secondary">
+                  <button type="submit" className="btn mt-2 btn-secondary" disabled={readOnly}>
                     Submit
                   </button>
                 </div>
@@ -833,7 +960,7 @@ export default function ViewCharacter() {
         className="mt-4 justify-center flex flex-wrap gap-5 mb-10"
       >
         {items.map((item) => (
-          <ItemComponent key={item.id} item={item} onDelete={deleteItem} />
+          <ItemComponent key={item.id} item={item} onDelete={deleteItem} readOnly={readOnly} />
         ))}
       </div>
       <h2 className="text-center m-4 font-bold text-xl">Spells:</h2>
@@ -843,13 +970,16 @@ export default function ViewCharacter() {
         id="spells"
       >
         {selectedSpells.map((spell) => (
-          <SpellComponent key={spell.id} spell={spell} onDelete={deleteSpell} />
+          <SpellComponent key={spell.id} spell={spell} onDelete={deleteSpell} readOnly={readOnly} />
         ))}
       </div>
       <div className="flex justify-center">
+
+      
         <button
           className="btn btn-primary my-4"
           onClick={() => window.my_modal_1.showModal()}
+          disabled={readOnly}
         >
           Delete Character
         </button>
@@ -862,18 +992,57 @@ export default function ViewCharacter() {
               This cannot be reversed.
               <div className="flex flex-col gap-4 items-center justify-center mt-5">
                 <button
-                  className="btn btn-primary  w-52"
+                  className="btn btn-primary w-52"
                   onClick={() => handleDeleteUserData()}
+                  disabled={readOnly}
                 >
                   Delete Character
                 </button>
-                <button className=" w-52 btn">Close</button>
+                <button className="w-52 btn">Close</button>
                 <div className="modal-action"></div>
               </div>
             </p>
           </form>
         </dialog>
       </div>
+      {showShareModal && (
+  <dialog open className="modal modal-middle">
+    <form method="dialog" className="modal-box">
+      <h3 className="font-bold text-lg flex items-center gap-2">
+        <FiShare2 size={20} /> Share Link
+      </h3>
+
+      <p className="py-4">Copy and send this read‑only link:</p>
+
+      <div className="flex gap-2">
+        <input
+          type="text"
+          className="input input-bordered w-full"
+          value={shareUrl}
+          readOnly
+        />
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => copyToClipboard(shareUrl)}
+        >
+          Copy
+        </button>
+      </div>
+
+      <div className="modal-action justify-center">
+        <button className="btn" onClick={() => setShowShareModal(false)}>
+          Close
+        </button>
+      </div>
+    </form>
+  </dialog>
+)}
+
     </div>
+
+    
   );
+
+  
 }

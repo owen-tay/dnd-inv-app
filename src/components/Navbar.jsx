@@ -45,11 +45,11 @@ function Navbar() {
   };
 
   return (
-    <div className="flex  text-base-content font-bold justify-between items-center   h-12 w-full ">
+    <div className="flex font-bold justify-between items-center   h-12 w-full ">
       <Link to="/">
-        <div className="flex text-lg  sm:text-3xl ml-4 hover:scale-105 ease-in-out duration-75 ">
-          <FaDiceD20 size="30" />
-          DND Tracker
+        <div className="flex text-lg items-center  sm:text-3xl ml-4 hover:scale-105 ease-in-out duration-75 ">
+          <FaDiceD20 className="rotate-center " size="30" />
+          DnD Tracker
         </div>
       </Link>
 

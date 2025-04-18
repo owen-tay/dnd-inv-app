@@ -55,11 +55,10 @@ function Home() {
   
   return (
     <div className="overflow-hidden">
-      <div className="bghero mt-20 min-h-screen flex items-center justify-center relative overflow-hidden">
-
-        <div className="hero w-full relative z-10 flex items-center justify-center ">
+      <div className="bghero min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-base-300 dark:via-base-200 dark:to-base-100 border-b">
+                <div className="hero w-full relative z-10 flex items-center justify-center ">
           <div className="hero-content text-center mx-auto">
-            <div className="max-w-3xl px-4 py-12 bg-base-100 bg-opacity-80  rounded-2xl ">
+            <div className="max-w-3xl px-4 py-12  rounded-2xl ">
               <h1 className="text-4xl sm:text-7xl font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent pb-4">
                 Track Your Character
               </h1>
@@ -182,7 +181,7 @@ function Home() {
 
           <div
             id="Page2"
-            className="page2 flex flex-col items-stretch lg:flex-row justify-center gap-8 max-w-6xl mx-auto"
+            className="page2 flex flex-col items-stretch lg:flex-row lg:flex-wrap justify-center gap-8 max-w-6xl mx-auto"
           >
 
 <div className="feature-card flex flex-col md:flex-row lg:flex-col items-center bg-base-200 rounded-xl shadow-xl p-8 transform transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:bg-base-300 w-full lg:w-1/3 border-t-4 border-secondary">
@@ -258,6 +257,25 @@ function Home() {
                 </h2>
                 <p className="leading-relaxed">
                   Access to every 5e spell through the 5eAPI. Keep track of spell slots and prepared spells effortlessly.
+                </p>
+              </div>
+            </div>
+            
+            {/* New Feature Card for Character Sharing */}
+            <div className="feature-card flex flex-col md:flex-row lg:flex-col items-center bg-base-200 rounded-xl shadow-xl p-8 transform transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:bg-base-300 w-full lg:w-1/3 border-t-4 border-secondary">
+              <svg
+                className="fill-secondary w-24 h-24 md:mr-6 lg:mr-0 mb-4 lg:mb-6"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+              >
+                <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92zM18 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM6 13c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm12 7.02c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z" />
+              </svg>
+              <div className="text-center md:text-left lg:text-center">
+                <h2 className="text-xl font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent mb-4">
+                  Share With Your Party
+                </h2>
+                <p className="leading-relaxed">
+                  Share your character sheet as read-only so other players can see your stats without being able to edit anything!
                 </p>
               </div>
             </div>

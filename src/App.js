@@ -10,6 +10,7 @@ import { AuthContextProvider } from './context/AuthContext';
 import Protected from './components/Protected';
 import { Blog } from './Blog/BlogList';
 import BlogDetails from './Blog/BlogDetails';
+import ShareCharacter from "./components/ShareCharacter";
 
 
 
@@ -27,6 +28,7 @@ function App() {
         <Route path='/*' element={<Home />} />
         <Route path='/SignIn' element={<Signin />} />
         <Route path='/Account' element={<Protected><Account /></Protected> } />
+        <Route path="/share/:token" element={<ShareCharacter />} />
       </Routes>
       </AuthContextProvider>
     </div>
